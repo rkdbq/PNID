@@ -44,21 +44,23 @@ def apply_resize(img, resize_factor):
 
 def generate_bigsize_data(xml_list, drawing_dir, drawing_output_dir, text_xml_dir, symbol_dict, include_text_as_class, include_text_orientation_as_class,
                             drawing_resize_scale, prefix):
-    """ 폴더 내 원본 이미지 도면들을 분할하고 분할 정보를 리스트로 저장
+    """ drawing_dir 내의 모든 원본 이미지 도면들을 분할하는 함수
 
     Arguments:
-        xml_list (list): xml 파일 리스트
-        drawing_dir (string): 원본 도면 이미지가 존재하는 폴더
-        drawing_output_dir (string): 분할된 이미지를 저장할 폴더
-        text_xml_dir (string): text xml 파일의 폴더 (include_text_as_calss가 False면 사용하지 않음)
+        xml_list (list): symbol xml 파일 리스트
+        drawing_dir (string): 원본 이미지 도면 폴더
+        drawing_segment_dir (string): 분할 이미지 도면 상위 폴더
+        segment_params (list): 분할 파라메터 [가로 크기, 세로 크기, 가로 stride, 세로 stride]
+        text_xml_dir (string): text xml 파일 폴더 (include_text_as_calss가 False면 사용하지 않음)
         symbol_dict (dict): symbol 이름을 key로, id를 value로 갖는 dict
         include_text_as_class (bool): text 데이터를 class로 추가할 것인지
-        drawing_resize_scale (float): 전체 도면 조정 스케일
-        prefix (string): train/val/test 중 하나. 이미지 저장 폴더명 생성에 필요
+        drawing_resize_scale (float): 도면 조정 스케일
+        prefix (string): train/val/test 중 하나. 분할 이미지 도면 저장 폴더명 생성에 필요
 
     Return:
-        xml에 있는 전체 도면에서 분할된 도면의 전체 정보 [sub_img_name, symbol_name, xmin, ymin, xmax, ymax]
+        entire_big_sym_info (list): 모든 분할 이미지 도면 리스트 [sub_img_name, symbol_name, xmin, ymin, xmax, ymax]
     """
+
     entire_big_sym_info = []
     drawing_dir = Path(drawing_dir)
     text_xml_dir = Path(text_xml_dir)
