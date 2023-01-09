@@ -5,7 +5,7 @@ from Common.pnid_xml import symbol_xml_reader, text_xml_reader
 
 def generate_segmented_data(xml_list, drawing_dir, drawing_segment_dir, segment_params, text_xml_dir, symbol_dict, include_text_as_class, include_text_orientation_as_class,
                             drawing_resize_scale, prefix):
-    """ xml_list 내의 모든 원본 이미지 도면들을 분할하는 함수
+    """ drawing_dir 내의 모든 원본 이미지 도면들을 분할하는 함수
 
     Arguments:
         xml_list (list): symbol xml 파일 리스트
