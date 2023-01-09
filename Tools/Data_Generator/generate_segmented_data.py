@@ -5,21 +5,21 @@ from Common.pnid_xml import symbol_xml_reader, text_xml_reader
 
 def generate_segmented_data(xml_list, drawing_dir, drawing_segment_dir, segment_params, text_xml_dir, symbol_dict, include_text_as_class, include_text_orientation_as_class,
                             drawing_resize_scale, prefix):
-    """ 폴더 내 원본 이미지 도면들을 분할하고 분할 정보를 리스트로 저장
+    """ xml_list 내의 모든 원본 이미지 도면들을 분할하는 함수
 
     Arguments:
-        xml_list (list): xml 파일 리스트
-        drawing_dir (string): 원본 도면 이미지가 존재하는 폴더
-        drawing_segment_dir (string): 분할된 이미지를 저장할 폴더
+        xml_list (list): symbol xml 파일 리스트
+        drawing_dir (string): 원본 이미지 도면 폴더
+        drawing_segment_dir (string): 분할 이미지 도면 상위 폴더
         segment_params (list): 분할 파라메터 [가로 크기, 세로 크기, 가로 stride, 세로 stride]
-        text_xml_dir (string): text xml 파일의 폴더 (include_text_as_calss가 False면 사용하지 않음)
+        text_xml_dir (string): text xml 파일 폴더 (include_text_as_calss가 False면 사용하지 않음)
         symbol_dict (dict): symbol 이름을 key로, id를 value로 갖는 dict
         include_text_as_class (bool): text 데이터를 class로 추가할 것인지
-        drawing_resize_scale (float): 전체 도면 조정 스케일
-        prefix (string): train/val/test 중 하나. 이미지 저장 폴더명 생성에 필요
+        drawing_resize_scale (float): 도면 조정 스케일
+        prefix (string): train/val/test 중 하나. 분할 이미지 도면 저장 폴더명 생성에 필요
 
     Return:
-        xml에 있는 전체 도면에서 분할된 도면의 전체 정보 [sub_img_name, symbol_name, xmin, ymin, xmax, ymax]
+        entire_segmented_info (list): 모든 분할 이미지 도면 리스트 [sub_img_name, symbol_name, xmin, ymin, xmax, ymax]
     """
     entire_segmented_info = []
 
@@ -52,20 +52,21 @@ def generate_segmented_data(xml_list, drawing_dir, drawing_segment_dir, segment_
     return entire_segmented_info
 
 def segment_write_images(img_path, seg_out_dir, objects, txt_object_list, include_text_orientation_as_class, symbol_dict, segment_params, drawing_resize_scale, prefix):
-    """ 각 도면에 대해 분할 도면을 생성하고 분할된 파일로 저장
+    """ img_path의 원본 이미지 도면을 분할하는 함수
 
     Arguments:
-        img_path (string): 원본 이미지 파일의 경로
-        seg_out_dir (string): 출력 분할 이미지 경로
-        objects (list): 원본 이미지의 object list [symbol_name, xmin, ymin, xmax, ymax]
-        txt_object_list (list): [optional] text object list [string, xmin, ymin, xmax, ymax, orientation]
-        include_text_orientation_as_class (bool): [optional] 텍스트 방향에 따라 별도의 클래스로 분리할 것인지 여부
+        img_path (string): 원본 이미지 도면 경로
+        seg_out_dir (string): 분할 이미지 도면 상위 폴더
+        objects (list): 원본 이미지 도면에 포함된 symbol list [symbol_name, xmin, ymin, xmax, ymax]
+        txt_object_list (list): [optional] 원본 이미지 도면에 포함된 text list [string, xmin, ymin, xmax, ymax, orientation]
+        include_text_orientation_as_class (bool): [optional] text 방향에 따라 별도의 클래스로 분리할 것인지 여부
         symbol_dict (dict): symbol 이름을 key로, id를 value로 갖는 dict
         segment_params (list): 분할 파라메터 [가로 크기, 세로 크기, 가로 stride, 세로 stride]
+        drawing_resize_scale (float): 도면 조정 스케일
         prefix (string): train/val/test 중 하나. 이미지 저장 폴더명 생성에 필요
 
     Return:
-        seg_obj_info : 한 장의 도면에서 생성된 스케일이 적용된 분할 도면의 전체 정보 [sub_img_name, symbol_name, xmin, ymin, xmax, ymax]
+        seg_obj_info (list): 스케일이 적용된 분할 이미지 도면 정보 [sub_img_name, symbol_name, xmin, ymin, xmax, ymax]
     """
     if os.path.exists(os.path.join(seg_out_dir, prefix)) == False:
         os.mkdir(os.path.join(seg_out_dir, prefix))
@@ -211,7 +212,14 @@ def segment_write_images(img_path, seg_out_dir, objects, txt_object_list, includ
     return seg_obj_info
 
 def segment_image(img_path, segment_params, drawing_resize_scale):
-    """ 하나의 도면을 분할하고 리스트 형태로 리턴
+    """ img_path의 원본 이미지 도면을 분할하는 함수
+        
+        Arguments:
+            img_path (string): 원본 이미지 도면 경로
+            segment_params (list): 분할 파라메터 [가로 크기, 세로 크기, 가로 stride, 세로 stride]
+            drawing_resize_scale (float): 도면 조정 스케일
+        Return:
+            seg_imgs (list): 분할 이미지 도면 리스트
     """
 
     # try:
