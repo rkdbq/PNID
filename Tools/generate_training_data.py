@@ -1,10 +1,12 @@
 import os
 import random
 import pickle
-from Data_Generator.generate_segmented_data import generate_segmented_data
+#from Data_Generator.generate_segmented_data import generate_segmented_data
 from Data_Generator.generate_bigsize_data import generate_bigsize_data
 from Common.symbol_io import read_symbol_txt
 from Data_Generator.write_coco_annotation import write_coco_annotation
+
+from Data_Generator.genetate_segmented_data_refactor import generate_segmented_data
 
 from pathlib import Path
 
@@ -12,9 +14,9 @@ from pathlib import Path
 # 이때, train의 경우 심볼(또는 옵션에 따라 심볼+텍스트)가 존재하지 않는 도면은 저장하지 않음
 # 단 test/val 도면의 경우 심볼이 존재하지 않아도 저장함
 
-base_dir = "C:\\Users\\DongwonJeong\\Desktop\\HyundaiPNID\\Data\\"
+base_dir = "C:\\pnid\\"
 drawing_dir = base_dir + "Drawing\\JPG"
-drawing_segment_dir = "C:\\Users\\DongwonJeong\\Desktop\\HyundaiPNID\\Dataset\\Dataset_Add_Text_Rotated"
+drawing_segment_dir = "C:\\pnid\\drawing_seg\\"
 symbol_xml_dir = base_dir + "SymbolXML"
 text_xml_dir = base_dir + "TextXML"
 
