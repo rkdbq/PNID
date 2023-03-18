@@ -1,0 +1,609 @@
+test drawing : 26071-200-M6-052-00001----------------------------------
+total precision : 514 / 519 = 0.9903660886319846
+total recall : 514 / 543 = 0.9465930018416207
+class 42 (['check_valve']) : 2 / 2
+class 43 (['chemical_seal_diaphragm']) : 2 / 2
+class 46 (['closed_figure_8_blind']) : 4 / 4
+class 66 (['concentric_reducer']) : 6 / 6
+class 100 (['desuperheater']) : 0 / 1
+class 109 (['discrete_instruments_field_mounted']) : 14 / 14
+class 145 (['flange']) : 18 / 18
+class 165 (['gate_valve']) : 18 / 18
+class 175 (['globe_valve']) : 5 / 5
+class 235 (['off_page_connector']) : 7 / 7
+class 238 (['open_drain_connectors']) : 2 / 2
+class 239 (['open_figure_8_blind']) : 3 / 3
+class 268 (['pressure_relief_or_safety_valve']) : 1 / 1
+class 284 (['removable_spool']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 8 / 8
+class 360 (['utility_conenction']) : 7 / 7
+class 380 (['vortex']) : 1 / 1
+class 421 (['function_low_signal_selector']) : 1 / 1
+class 427 (['function_unspecified']) : 1 / 1
+class 429 (['gate_valve_with_flange']) : 5 / 5
+class 430 (['gate_valve_with_plug']) : 15 / 15
+class 474 (['shell_type_e']) : 0 / 1
+class 495 (['vertical_drum']) : 0 / 1
+class 499 (['text']) : 348 / 373
+class 500 (['text_rotated']) : 45 / 46
+
+test drawing : 26071-200-M6-052-00002----------------------------------
+total precision : 707 / 712 = 0.9929775280898876
+total recall : 707 / 744 = 0.9502688172043011
+class 42 (['check_valve']) : 1 / 1
+class 43 (['chemical_seal_diaphragm']) : 3 / 3
+class 46 (['closed_figure_8_blind']) : 4 / 4
+class 66 (['concentric_reducer']) : 12 / 12
+class 100 (['desuperheater']) : 0 / 1
+class 102 (['diaphragm']) : 0 / 3
+class 109 (['discrete_instruments_field_mounted']) : 15 / 15
+class 131 (['end_gap']) : 0 / 1
+class 145 (['flange']) : 20 / 20
+class 165 (['gate_valve']) : 33 / 33
+class 175 (['globe_valve']) : 7 / 7
+class 235 (['off_page_connector']) : 4 / 4
+class 238 (['open_drain_connectors']) : 7 / 7
+class 239 (['open_figure_8_blind']) : 3 / 3
+class 268 (['pressure_relief_or_safety_valve']) : 3 / 3
+class 284 (['removable_spool']) : 1 / 1
+class 285 (['restriction_orifice']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 11 / 11
+class 321 (['spacer']) : 2 / 2
+class 360 (['utility_conenction']) : 26 / 26
+class 380 (['vortex']) : 1 / 1
+class 421 (['function_low_signal_selector']) : 1 / 1
+class 427 (['function_unspecified']) : 1 / 1
+class 429 (['gate_valve_with_flange']) : 8 / 8
+class 430 (['gate_valve_with_plug']) : 15 / 15
+class 474 (['shell_type_e']) : 0 / 1
+class 495 (['vertical_drum']) : 0 / 1
+class 499 (['text']) : 468 / 498
+class 500 (['text_rotated']) : 60 / 60
+
+test drawing : 26071-200-M6-052-00003----------------------------------
+total precision : 576 / 582 = 0.9896907216494846
+total recall : 576 / 613 = 0.9396411092985318
+class 12 (['ball_valve']) : 6 / 6
+class 21 (['blind_flange']) : 2 / 2
+class 42 (['check_valve']) : 4 / 4
+class 43 (['chemical_seal_diaphragm']) : 6 / 6
+class 46 (['closed_figure_8_blind']) : 1 / 1
+class 66 (['concentric_reducer']) : 9 / 10
+class 102 (['diaphragm']) : 0 / 2
+class 109 (['discrete_instruments_field_mounted']) : 11 / 11
+class 110 (['discrete_instruments_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 145 (['flange']) : 16 / 16
+class 165 (['gate_valve']) : 17 / 17
+class 175 (['globe_valve']) : 5 / 5
+class 235 (['off_page_connector']) : 5 / 5
+class 238 (['open_drain_connectors']) : 4 / 4
+class 239 (['open_figure_8_blind']) : 1 / 1
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 3 / 3
+class 268 (['pressure_relief_or_safety_valve']) : 2 / 2
+class 284 (['removable_spool']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 7 / 7
+class 321 (['spacer']) : 3 / 3
+class 360 (['utility_conenction']) : 18 / 18
+class 390 (['ball_valve_with_plug']) : 3 / 3
+class 429 (['gate_valve_with_flange']) : 7 / 7
+class 430 (['gate_valve_with_plug']) : 4 / 4
+class 438 (['horizontal_drum']) : 0 / 1
+class 488 (['swing_elbow']) : 1 / 1
+class 499 (['text']) : 406 / 438
+class 500 (['text_rotated']) : 33 / 34
+
+test drawing : 26071-200-M6-052-00005----------------------------------
+total precision : 1086 / 1095 = 0.9917808219178083
+total recall : 1086 / 1117 = 0.97224709042077
+class 12 (['ball_valve']) : 5 / 5
+class 20 (['blank']) : 0 / 4
+class 43 (['chemical_seal_diaphragm']) : 9 / 9
+class 66 (['concentric_reducer']) : 30 / 30
+class 109 (['discrete_instruments_field_mounted']) : 38 / 38
+class 145 (['flange']) : 28 / 28
+class 165 (['gate_valve']) : 56 / 56
+class 175 (['globe_valve']) : 6 / 6
+class 235 (['off_page_connector']) : 8 / 8
+class 238 (['open_drain_connectors']) : 17 / 17
+class 239 (['open_figure_8_blind']) : 3 / 3
+class 268 (['pressure_relief_or_safety_valve']) : 4 / 4
+class 284 (['removable_spool']) : 2 / 2
+class 285 (['restriction_orifice']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 18 / 18
+class 321 (['spacer']) : 7 / 7
+class 360 (['utility_conenction']) : 41 / 41
+class 380 (['vortex']) : 1 / 1
+class 429 (['gate_valve_with_flange']) : 15 / 15
+class 430 (['gate_valve_with_plug']) : 10 / 10
+class 474 (['shell_type_e']) : 0 / 4
+class 499 (['text']) : 721 / 743
+class 500 (['text_rotated']) : 66 / 67
+
+test drawing : 26071-200-M6-052-00077----------------------------------
+total precision : 778 / 782 = 0.9948849104859335
+total recall : 778 / 814 = 0.9557739557739557
+class 12 (['ball_valve']) : 5 / 5
+class 21 (['blind_flange']) : 3 / 4
+class 42 (['check_valve']) : 10 / 10
+class 45 (['closed_drain_connectors']) : 2 / 2
+class 46 (['closed_figure_8_blind']) : 6 / 6
+class 66 (['concentric_reducer']) : 22 / 22
+class 106 (['discrete_hardware_interlock_field_mounted']) : 2 / 2
+class 109 (['discrete_instruments_field_mounted']) : 20 / 20
+class 145 (['flange']) : 26 / 26
+class 165 (['gate_valve']) : 48 / 48
+class 175 (['globe_valve']) : 12 / 12
+class 235 (['off_page_connector']) : 5 / 5
+class 238 (['open_drain_connectors']) : 6 / 6
+class 239 (['open_figure_8_blind']) : 8 / 8
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 2 / 2
+class 268 (['pressure_relief_or_safety_valve']) : 2 / 2
+class 276 (['pump_centrifugal_type']) : 2 / 2
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 10 / 10
+class 336 (['t_type_strainer']) : 2 / 2
+class 360 (['utility_conenction']) : 12 / 12
+class 380 (['vortex']) : 3 / 3
+class 390 (['ball_valve_with_plug']) : 3 / 3
+class 429 (['gate_valve_with_flange']) : 5 / 5
+class 430 (['gate_valve_with_plug']) : 15 / 15
+class 469 (['sample_connection']) : 1 / 1
+class 488 (['swing_elbow']) : 1 / 1
+class 495 (['vertical_drum']) : 0 / 1
+class 499 (['text']) : 486 / 516
+class 500 (['text_rotated']) : 59 / 63
+
+test drawing : 26071-200-M6-052-00107----------------------------------
+total precision : 735 / 736 = 0.998641304347826
+total recall : 735 / 766 = 0.9595300261096605
+class 21 (['blind_flange']) : 1 / 2
+class 33 (['butterfly_valve']) : 3 / 3
+class 42 (['check_valve']) : 3 / 3
+class 43 (['chemical_seal_diaphragm']) : 1 / 1
+class 46 (['closed_figure_8_blind']) : 3 / 3
+class 66 (['concentric_reducer']) : 11 / 11
+class 109 (['discrete_instruments_field_mounted']) : 31 / 31
+class 145 (['flange']) : 22 / 22
+class 165 (['gate_valve']) : 23 / 23
+class 175 (['globe_valve']) : 6 / 6
+class 235 (['off_page_connector']) : 8 / 8
+class 238 (['open_drain_connectors']) : 3 / 3
+class 239 (['open_figure_8_blind']) : 5 / 5
+class 268 (['pressure_relief_or_safety_valve']) : 4 / 4
+class 284 (['removable_spool']) : 2 / 2
+class 285 (['restriction_orifice']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 12 / 12
+class 321 (['spacer']) : 5 / 5
+class 360 (['utility_conenction']) : 16 / 16
+class 380 (['vortex']) : 1 / 1
+class 429 (['gate_valve_with_flange']) : 15 / 15
+class 430 (['gate_valve_with_plug']) : 2 / 2
+class 469 (['sample_connection']) : 1 / 1
+class 474 (['shell_type_e']) : 0 / 2
+class 488 (['swing_elbow']) : 1 / 1
+class 495 (['vertical_drum']) : 0 / 1
+class 499 (['text']) : 515 / 542
+class 500 (['text_rotated']) : 40 / 40
+
+test drawing : 26071-200-M6-052-00120----------------------------------
+total precision : 543 / 547 = 0.9926873857404022
+total recall : 543 / 568 = 0.9559859154929577
+class 21 (['blind_flange']) : 2 / 2
+class 33 (['butterfly_valve']) : 3 / 3
+class 34 (['cap']) : 4 / 4
+class 43 (['chemical_seal_diaphragm']) : 3 / 3
+class 46 (['closed_figure_8_blind']) : 1 / 1
+class 66 (['concentric_reducer']) : 14 / 14
+class 100 (['desuperheater']) : 0 / 1
+class 106 (['discrete_hardware_interlock_field_mounted']) : 2 / 2
+class 109 (['discrete_instruments_field_mounted']) : 14 / 14
+class 124 (['electric_motor_general']) : 2 / 2
+class 145 (['flange']) : 9 / 11
+class 165 (['gate_valve']) : 33 / 33
+class 175 (['globe_valve']) : 9 / 9
+class 235 (['off_page_connector']) : 6 / 6
+class 238 (['open_drain_connectors']) : 5 / 5
+class 239 (['open_figure_8_blind']) : 3 / 3
+class 268 (['pressure_relief_or_safety_valve']) : 2 / 2
+class 284 (['removable_spool']) : 1 / 1
+class 285 (['restriction_orifice']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 3 / 3
+class 360 (['utility_conenction']) : 8 / 8
+class 429 (['gate_valve_with_flange']) : 28 / 28
+class 430 (['gate_valve_with_plug']) : 2 / 2
+class 474 (['shell_type_e']) : 0 / 1
+class 499 (['text']) : 336 / 353
+class 500 (['text_rotated']) : 52 / 56
+
+test drawing : 26071-300-M6-053-00003----------------------------------
+total precision : 449 / 453 = 0.9911699779249448
+total recall : 449 / 466 = 0.9635193133047211
+class 21 (['blind_flange']) : 2 / 6
+class 42 (['check_valve']) : 2 / 2
+class 45 (['closed_drain_connectors']) : 2 / 2
+class 46 (['closed_figure_8_blind']) : 5 / 5
+class 66 (['concentric_reducer']) : 8 / 8
+class 109 (['discrete_instruments_field_mounted']) : 12 / 12
+class 145 (['flange']) : 19 / 19
+class 160 (['gas_filter_bag_candle_or_cartridge_type']) : 2 / 2
+class 165 (['gate_valve']) : 24 / 24
+class 175 (['globe_valve']) : 5 / 5
+class 235 (['off_page_connector']) : 6 / 6
+class 238 (['open_drain_connectors']) : 2 / 2
+class 239 (['open_figure_8_blind']) : 2 / 2
+class 268 (['pressure_relief_or_safety_valve']) : 2 / 2
+class 285 (['restriction_orifice']) : 2 / 2
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 6 / 6
+class 360 (['utility_conenction']) : 8 / 8
+class 380 (['vortex']) : 1 / 1
+class 429 (['gate_valve_with_flange']) : 2 / 2
+class 430 (['gate_valve_with_plug']) : 7 / 7
+class 469 (['sample_connection']) : 1 / 1
+class 488 (['swing_elbow']) : 2 / 2
+class 499 (['text']) : 311 / 324
+class 500 (['text_rotated']) : 16 / 16
+
+test drawing : 26071-300-M6-053-00025----------------------------------
+total precision : 854 / 904 = 0.9446902654867256
+total recall : 854 / 898 = 0.9510022271714922
+class 12 (['ball_valve']) : 6 / 6
+class 21 (['blind_flange']) : 0 / 2
+class 42 (['check_valve']) : 6 / 6
+class 46 (['closed_figure_8_blind']) : 7 / 7
+class 63 (['compressor_vacuum_pump_reciprocating_piston_type']) : 0 / 4
+class 66 (['concentric_reducer']) : 10 / 10
+class 68 (['cone_strainer']) : 0 / 2
+class 109 (['discrete_instruments_field_mounted']) : 25 / 25
+class 145 (['flange']) : 27 / 30
+class 165 (['gate_valve']) : 42 / 42
+class 175 (['globe_valve']) : 13 / 13
+class 235 (['off_page_connector']) : 5 / 5
+class 239 (['open_figure_8_blind']) : 2 / 2
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 9 / 9
+class 268 (['pressure_relief_or_safety_valve']) : 2 / 2
+class 284 (['removable_spool']) : 4 / 4
+class 285 (['restriction_orifice']) : 2 / 2
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 21 / 21
+class 321 (['spacer']) : 2 / 2
+class 360 (['utility_conenction']) : 10 / 10
+class 380 (['vortex']) : 1 / 1
+class 389 (['ball_valve_with_flange']) : 22 / 22
+class 429 (['gate_valve_with_flange']) : 3 / 3
+class 430 (['gate_valve_with_plug']) : 1 / 1
+class 431 (['general_sight_glass']) : 2 / 2
+class 469 (['sample_connection']) : 1 / 1
+class 499 (['text']) : 620 / 653
+class 500 (['text_rotated']) : 11 / 11
+
+test drawing : 26071-300-M6-053-00027----------------------------------
+total precision : 1042 / 1065 = 0.9784037558685446
+total recall : 1042 / 1085 = 0.96036866359447
+class 12 (['ball_valve']) : 2 / 2
+class 21 (['blind_flange']) : 2 / 5
+class 33 (['butterfly_valve']) : 1 / 1
+class 34 (['cap']) : 1 / 1
+class 42 (['check_valve']) : 6 / 6
+class 43 (['chemical_seal_diaphragm']) : 5 / 5
+class 45 (['closed_drain_connectors']) : 1 / 1
+class 46 (['closed_figure_8_blind']) : 3 / 3
+class 66 (['concentric_reducer']) : 23 / 23
+class 100 (['desuperheater']) : 0 / 1
+class 109 (['discrete_instruments_field_mounted']) : 37 / 37
+class 110 (['discrete_instruments_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 131 (['end_gap']) : 0 / 3
+class 145 (['flange']) : 39 / 39
+class 165 (['gate_valve']) : 32 / 32
+class 175 (['globe_valve']) : 8 / 8
+class 235 (['off_page_connector']) : 9 / 9
+class 238 (['open_drain_connectors']) : 1 / 1
+class 239 (['open_figure_8_blind']) : 5 / 5
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 5 / 5
+class 268 (['pressure_relief_or_safety_valve']) : 5 / 5
+class 284 (['removable_spool']) : 2 / 2
+class 285 (['restriction_orifice']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 20 / 20
+class 321 (['spacer']) : 8 / 8
+class 360 (['utility_conenction']) : 6 / 6
+class 391 (['blowdown_pot']) : 0 / 1
+class 405 (['debutanizer']) : 0 / 1
+class 421 (['function_low_signal_selector']) : 1 / 1
+class 427 (['function_unspecified']) : 1 / 1
+class 429 (['gate_valve_with_flange']) : 12 / 12
+class 430 (['gate_valve_with_plug']) : 7 / 7
+class 440 (['injection_quill']) : 1 / 1
+class 475 (['shell_type_h']) : 0 / 1
+class 488 (['swing_elbow']) : 1 / 1
+class 491 (['variable_area_flowmeter']) : 1 / 1
+class 499 (['text']) : 772 / 805
+class 500 (['text_rotated']) : 23 / 23
+
+test drawing : 26071-300-M6-053-00263----------------------------------
+total precision : 608 / 611 = 0.9950900163666121
+total recall : 608 / 632 = 0.9620253164556962
+class 21 (['blind_flange']) : 13 / 15
+class 42 (['check_valve']) : 3 / 3
+class 45 (['closed_drain_connectors']) : 3 / 3
+class 46 (['closed_figure_8_blind']) : 1 / 1
+class 66 (['concentric_reducer']) : 8 / 8
+class 100 (['desuperheater']) : 0 / 2
+class 106 (['discrete_hardware_interlock_field_mounted']) : 6 / 6
+class 109 (['discrete_instruments_field_mounted']) : 30 / 30
+class 119 (['eccentric_reducer']) : 6 / 6
+class 124 (['electric_motor_general']) : 4 / 4
+class 145 (['flange']) : 38 / 38
+class 165 (['gate_valve']) : 28 / 28
+class 235 (['off_page_connector']) : 3 / 3
+class 238 (['open_drain_connectors']) : 3 / 3
+class 239 (['open_figure_8_blind']) : 11 / 11
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 3 / 3
+class 276 (['pump_centrifugal_type']) : 2 / 2
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 9 / 9
+class 312 (['shared_display_and_control_primary_location_normally_inaccessible_to_an_operator']) : 1 / 1
+class 321 (['spacer']) : 1 / 1
+class 336 (['t_type_strainer']) : 2 / 2
+class 360 (['utility_conenction']) : 1 / 1
+class 438 (['horizontal_drum']) : 0 / 1
+class 488 (['swing_elbow']) : 1 / 1
+class 499 (['text']) : 425 / 444
+class 500 (['text_rotated']) : 6 / 6
+
+test drawing : 26071-300-M6-053-00271----------------------------------
+total precision : 393 / 397 = 0.9899244332493703
+total recall : 393 / 417 = 0.9424460431654677
+class 12 (['ball_valve']) : 2 / 2
+class 21 (['blind_flange']) : 2 / 5
+class 42 (['check_valve']) : 7 / 7
+class 46 (['closed_figure_8_blind']) : 2 / 2
+class 66 (['concentric_reducer']) : 5 / 5
+class 73 (['conveyor_belt_type']) : 0 / 1
+class 106 (['discrete_hardware_interlock_field_mounted']) : 1 / 1
+class 109 (['discrete_instruments_field_mounted']) : 16 / 16
+class 120 (['ejector_eductor']) : 0 / 1
+class 145 (['flange']) : 18 / 18
+class 165 (['gate_valve']) : 8 / 8
+class 175 (['globe_valve']) : 5 / 5
+class 191 (['hose_connection']) : 1 / 1
+class 235 (['off_page_connector']) : 2 / 2
+class 238 (['open_drain_connectors']) : 1 / 1
+class 239 (['open_figure_8_blind']) : 4 / 4
+class 267 (['pressure_reducing_regulator']) : 1 / 1
+class 284 (['removable_spool']) : 0 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 5 / 5
+class 312 (['shared_display_and_control_primary_location_normally_inaccessible_to_an_operator']) : 3 / 3
+class 360 (['utility_conenction']) : 5 / 5
+class 380 (['vortex']) : 1 / 1
+class 412 (['extend_steam_valve']) : 0 / 2
+class 429 (['gate_valve_with_flange']) : 3 / 3
+class 430 (['gate_valve_with_plug']) : 3 / 3
+class 438 (['horizontal_drum']) : 0 / 1
+class 450 (['pump_vertical_wet_pit']) : 0 / 1
+class 486 (['sump_drum']) : 0 / 1
+class 488 (['swing_elbow']) : 1 / 1
+class 499 (['text']) : 293 / 306
+class 500 (['text_rotated']) : 4 / 4
+
+test drawing : 26071-300-M6-053-00302----------------------------------
+total precision : 230 / 234 = 0.9829059829059829
+total recall : 230 / 248 = 0.9274193548387096
+class 21 (['blind_flange']) : 2 / 2
+class 66 (['concentric_reducer']) : 10 / 10
+class 109 (['discrete_instruments_field_mounted']) : 4 / 4
+class 145 (['flange']) : 17 / 18
+class 165 (['gate_valve']) : 6 / 6
+class 175 (['globe_valve']) : 4 / 4
+class 235 (['off_page_connector']) : 3 / 3
+class 268 (['pressure_relief_or_safety_valve']) : 2 / 2
+class 285 (['restriction_orifice']) : 2 / 2
+class 385 (['y_type_strainer']) : 2 / 2
+class 399 (['compressor_reciprocating_type_5']) : 0 / 2
+class 429 (['gate_valve_with_flange']) : 10 / 10
+class 431 (['general_sight_glass']) : 4 / 4
+class 499 (['text']) : 162 / 177
+class 500 (['text_rotated']) : 2 / 2
+
+test drawing : 26071-300-M6-053-00305----------------------------------
+total precision : 320 / 357 = 0.896358543417367
+total recall : 320 / 339 = 0.943952802359882
+class 42 (['check_valve']) : 2 / 2
+class 46 (['closed_figure_8_blind']) : 2 / 2
+class 66 (['concentric_reducer']) : 6 / 6
+class 109 (['discrete_instruments_field_mounted']) : 10 / 10
+class 145 (['flange']) : 22 / 23
+class 165 (['gate_valve']) : 26 / 26
+class 238 (['open_drain_connectors']) : 4 / 4
+class 254 (['plc_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 360 (['utility_conenction']) : 2 / 2
+class 397 (['compressor_reciprocating_type_4a']) : 0 / 1
+class 431 (['general_sight_glass']) : 2 / 2
+class 495 (['vertical_drum']) : 0 / 2
+class 499 (['text']) : 230 / 241
+class 500 (['text_rotated']) : 12 / 16
+
+test drawing : 26071-300-M6-053-00310----------------------------------
+total precision : 864 / 969 = 0.891640866873065
+total recall : 864 / 917 = 0.9422028353326063
+class 0 (['3_way_valve']) : 3 / 3
+class 14 (['basket_strainer']) : 0 / 1
+class 21 (['blind_flange']) : 8 / 15
+class 33 (['butterfly_valve']) : 8 / 8
+class 34 (['cap']) : 1 / 1
+class 42 (['check_valve']) : 2 / 2
+class 66 (['concentric_reducer']) : 17 / 17
+class 107 (['discrete_instruments_auxiliary_location_normally_accessible_to_an_operator']) : 7 / 7
+class 109 (['discrete_instruments_field_mounted']) : 22 / 22
+class 119 (['eccentric_reducer']) : 2 / 2
+class 145 (['flange']) : 46 / 51
+class 165 (['gate_valve']) : 38 / 38
+class 175 (['globe_valve']) : 5 / 5
+class 235 (['off_page_connector']) : 10 / 10
+class 239 (['open_figure_8_blind']) : 4 / 4
+class 245 (['pilot_light_or_gauge_glass_illuminator']) : 9 / 9
+class 253 (['plc_field_mounted']) : 7 / 7
+class 254 (['plc_primary_location_normally_accessible_to_an_operator']) : 5 / 5
+class 268 (['pressure_relief_or_safety_valve']) : 2 / 2
+class 276 (['pump_centrifugal_type']) : 2 / 2
+class 285 (['restriction_orifice']) : 2 / 2
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 12 / 12
+class 360 (['utility_conenction']) : 2 / 2
+class 385 (['y_type_strainer']) : 2 / 2
+class 429 (['gate_valve_with_flange']) : 10 / 10
+class 431 (['general_sight_glass']) : 2 / 2
+class 437 (['heat_exchanger_vendor']) : 0 / 2
+class 441 (['instrument_box']) : 0 / 3
+class 471 (['screwed_cap']) : 1 / 2
+class 489 (['tank_flat_roof']) : 0 / 1
+class 492 (['vendor_heater']) : 0 / 1
+class 499 (['text']) : 616 / 648
+class 500 (['text_rotated']) : 19 / 19
+
+test drawing : 26071-500-M6-059-00007----------------------------------
+total precision : 621 / 627 = 0.9904306220095693
+total recall : 621 / 645 = 0.9627906976744186
+class 12 (['ball_valve']) : 16 / 16
+class 21 (['blind_flange']) : 2 / 2
+class 42 (['check_valve']) : 3 / 3
+class 66 (['concentric_reducer']) : 5 / 5
+class 109 (['discrete_instruments_field_mounted']) : 24 / 24
+class 110 (['discrete_instruments_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 131 (['end_gap']) : 8 / 8
+class 145 (['flange']) : 8 / 8
+class 165 (['gate_valve']) : 4 / 4
+class 175 (['globe_valve']) : 2 / 2
+class 235 (['off_page_connector']) : 7 / 7
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 9 / 9
+class 258 (['plug_valve']) : 4 / 4
+class 267 (['pressure_reducing_regulator']) : 0 / 1
+class 285 (['restriction_orifice']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 24 / 24
+class 338 (['tank_vessel']) : 0 / 2
+class 360 (['utility_conenction']) : 3 / 3
+class 390 (['ball_valve_with_plug']) : 11 / 11
+class 420 (['function_high_signal_selector']) : 0 / 1
+class 422 (['function_multiply']) : 1 / 1
+class 499 (['text']) : 486 / 506
+class 500 (['text_rotated']) : 2 / 2
+
+test drawing : 26071-500-M6-059-00009----------------------------------
+total precision : 601 / 608 = 0.9884868421052632
+total recall : 601 / 628 = 0.9570063694267515
+class 12 (['ball_valve']) : 16 / 16
+class 21 (['blind_flange']) : 1 / 2
+class 42 (['check_valve']) : 3 / 3
+class 66 (['concentric_reducer']) : 5 / 5
+class 109 (['discrete_instruments_field_mounted']) : 24 / 24
+class 110 (['discrete_instruments_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 131 (['end_gap']) : 8 / 8
+class 145 (['flange']) : 8 / 8
+class 165 (['gate_valve']) : 4 / 4
+class 175 (['globe_valve']) : 2 / 2
+class 235 (['off_page_connector']) : 7 / 7
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 9 / 9
+class 258 (['plug_valve']) : 4 / 4
+class 267 (['pressure_reducing_regulator']) : 0 / 1
+class 285 (['restriction_orifice']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 24 / 24
+class 338 (['tank_vessel']) : 0 / 2
+class 360 (['utility_conenction']) : 3 / 3
+class 390 (['ball_valve_with_plug']) : 10 / 11
+class 420 (['function_high_signal_selector']) : 0 / 1
+class 422 (['function_multiply']) : 1 / 1
+class 499 (['text']) : 468 / 489
+class 500 (['text_rotated']) : 2 / 2
+
+test drawing : 26071-500-M6-059-00014----------------------------------
+total precision : 475 / 492 = 0.9654471544715447
+total recall : 475 / 544 = 0.8731617647058824
+class 21 (['blind_flange']) : 20 / 32
+class 34 (['cap']) : 4 / 4
+class 100 (['desuperheater']) : 0 / 4
+class 106 (['discrete_hardware_interlock_field_mounted']) : 8 / 8
+class 109 (['discrete_instruments_field_mounted']) : 32 / 32
+class 124 (['electric_motor_general']) : 8 / 8
+class 145 (['flange']) : 31 / 32
+class 165 (['gate_valve']) : 32 / 32
+class 235 (['off_page_connector']) : 2 / 2
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 3 / 3
+class 499 (['text']) : 333 / 385
+class 500 (['text_rotated']) : 2 / 2
+
+test drawing : 26071-500-M6-059-00017----------------------------------
+total precision : 600 / 619 = 0.9693053311793215
+total recall : 600 / 634 = 0.9463722397476341
+class 5 (['back_pressure_regulator']) : 0 / 1
+class 12 (['ball_valve']) : 1 / 1
+class 21 (['blind_flange']) : 1 / 2
+class 42 (['check_valve']) : 4 / 4
+class 46 (['closed_figure_8_blind']) : 4 / 4
+class 56 (['compressor_centrifugal_type']) : 0 / 1
+class 66 (['concentric_reducer']) : 6 / 6
+class 107 (['discrete_instruments_auxiliary_location_normally_accessible_to_an_operator']) : 3 / 3
+class 109 (['discrete_instruments_field_mounted']) : 10 / 10
+class 110 (['discrete_instruments_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 131 (['end_gap']) : 2 / 3
+class 145 (['flange']) : 11 / 11
+class 159 (['gas_cylinder']) : 0 / 1
+class 165 (['gate_valve']) : 29 / 29
+class 235 (['off_page_connector']) : 7 / 7
+class 253 (['plc_field_mounted']) : 1 / 1
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 4 / 4
+class 268 (['pressure_relief_or_safety_valve']) : 1 / 1
+class 284 (['removable_spool']) : 1 / 1
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 10 / 10
+class 321 (['spacer']) : 2 / 2
+class 336 (['t_type_strainer']) : 1 / 1
+class 338 (['tank_vessel']) : 0 / 1
+class 360 (['utility_conenction']) : 6 / 6
+class 362 (['vent_cover']) : 0 / 1
+class 387 (['angle_blowdown_valve']) : 1 / 1
+class 409 (['dual_plate_wafer_check_valve']) : 1 / 1
+class 429 (['gate_valve_with_flange']) : 6 / 6
+class 430 (['gate_valve_with_plug']) : 2 / 2
+class 441 (['instrument_box']) : 0 / 1
+class 469 (['sample_connection']) : 2 / 2
+class 499 (['text']) : 476 / 502
+class 500 (['text_rotated']) : 7 / 7
+
+test drawing : 26071-500-M6-059-00022----------------------------------
+total precision : 1074 / 1102 = 0.9745916515426497
+total recall : 1074 / 1117 = 0.9615040286481648
+class 21 (['blind_flange']) : 6 / 6
+class 42 (['check_valve']) : 4 / 4
+class 46 (['closed_figure_8_blind']) : 3 / 3
+class 63 (['compressor_vacuum_pump_reciprocating_piston_type']) : 0 / 4
+class 66 (['concentric_reducer']) : 20 / 20
+class 109 (['discrete_instruments_field_mounted']) : 37 / 37
+class 110 (['discrete_instruments_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 131 (['end_gap']) : 0 / 8
+class 145 (['flange']) : 39 / 39
+class 165 (['gate_valve']) : 46 / 46
+class 175 (['globe_valve']) : 3 / 3
+class 235 (['off_page_connector']) : 16 / 16
+class 238 (['open_drain_connectors']) : 3 / 3
+class 239 (['open_figure_8_blind']) : 1 / 1
+class 253 (['plc_field_mounted']) : 1 / 1
+class 255 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 5 / 5
+class 268 (['pressure_relief_or_safety_valve']) : 3 / 3
+class 284 (['removable_spool']) : 3 / 3
+class 311 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 25 / 25
+class 336 (['t_type_strainer']) : 3 / 3
+class 339 (['tank_vessel_with_dished_ends']) : 0 / 6
+class 360 (['utility_conenction']) : 13 / 13
+class 394 (['break_away_coupling']) : 3 / 3
+class 429 (['gate_valve_with_flange']) : 16 / 16
+class 430 (['gate_valve_with_plug']) : 1 / 1
+class 499 (['text']) : 813 / 838
+class 500 (['text_rotated']) : 9 / 9
+
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.376
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.417
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.402
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.240
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.468
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.312
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.237
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.469
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.580
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.428
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.764
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.449
+(mean precision, mean recall, ap, ap50, ap75) = (0.9754737102132143, 0.9486905786283849, 0.376, 0.417, 0.402)
