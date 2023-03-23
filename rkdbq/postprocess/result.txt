@@ -1,0 +1,30 @@
+test drawing : 26071-500-M6-059-00116----------------------------------
+total precision : 297 / 308 = 0.9642857142857143
+total recall : 297 / 306 = 0.9705882352941176
+blind_flange : 0 / 1
+butterfly_valve : 2 / 2
+concentric_reducer : 5 / 5
+discrete_hardware_interlock_field_mounted : 1 / 1
+discrete_instruments_field_mounted : 7 / 7
+expansion_joint : 2 / 2
+flange : 6 / 6
+gate_valve : 4 / 4
+globe_valve : 2 / 2
+off_page_connector : 7 / 7
+plc_field_mounted : 1 / 1
+restriction_orifice : 1 / 1
+shared_display_and_control_primary_location_normally_accessible_to_an_operator : 10 / 10
+utility_conenction : 1 / 1
+dual_plate_wafer_check_valve : 1 / 1
+function_multiply : 1 / 1
+variable_area_flowmeter : 2 / 2
+spec_break : 7 / 7
+annotation : 3 / 3
+text : 226 / 230
+diaphragm : 2 / 2
+connector : 0 / 2
+flanged_nozzle : 5 / 5
+electric_motor_general : 1 / 1
+pipe_nozzle : 0 / 2
+
+(mean precision, mean recall) = (0.9642857142857143, 0.9705882352941176)
