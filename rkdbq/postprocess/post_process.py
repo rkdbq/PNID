@@ -35,13 +35,13 @@ def convertClassToDiagram(filesDir, diagramDir):
         for line in curFile:
             addLineToDiagram(line, diagramDir, className)   
 
-def calculateIoU(gt, dt):
+def calculate_IoU(gt, dt):
     gtRect = Polygon(gt)
     dtRect = Polygon(dt)
     IoU = gtRect.intersection(dtRect).area / gtRect.union(dtRect).area
     return IoU
 
-def compare_gt_and_dt_rotated(gt, dt, iouThreshold): # list -> map으로 구현 변경 필요.
+def compare_gt_and_dt_rotated(gt, dt, iouThreshold):
     matched = {}
     for gtValue in gt:
         gtPoints = np.array([int(i) for i in gtValue[0:8]])
@@ -54,7 +54,7 @@ def compare_gt_and_dt_rotated(gt, dt, iouThreshold): # list -> map으로 구현 
             dtPoints = dtPoints.tolist()
             dtClass = dtValue[8]
             if gtClass != dtClass: continue
-            if calculateIoU(gtPoints, dtPoints) > iouThreshold:
+            if calculate_IoU(gtPoints, dtPoints) > iouThreshold:
                 if gtClass in matched:
                     matched[gtClass] += 1
                 else:
