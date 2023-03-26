@@ -50,29 +50,29 @@ def convert_class_to_diagram(files_dir, diagram_dir):
             add_line_to_diagram(line, diagram_dir, class_name)   
 
 def calculate_IoU(gt, dt):
-    gtRect = Polygon(gt)
-    dtRect = Polygon(dt)
-    IoU = gtRect.intersection(dtRect).area / gtRect.union(dtRect).area
+    gt_rect = Polygon(gt)
+    dt_rect = Polygon(dt)
+    IoU = gt_rect.intersection(dt_rect).area / gt_rect.union(dt_rect).area
     return IoU
 
 def compare_gt_and_dt_rotated(gt, dt, iou_threshold): # list -> map으로 구현 변경 필요.
     matched = {}
-    for gtValue in gt:
-        gtPoints = np.array([int(i) for i in gtValue[0:8]])
-        gtPoints = gtPoints.reshape(4,2)
-        gtPoints = gtPoints.tolist()
-        gtClass = gtValue[8]
+    for gt_value in gt:
+        gt_points = np.array([int(i) for i in gt_value[0:8]])
+        gt_points = gt_points.reshape(4,2)
+        gt_points = gt_points.tolist()
+        gt_class = gt_value[8]
         for dtValue in dt:
             dtPoints = np.array([int(i) for i in dtValue[0:8]])
             dtPoints = dtPoints.reshape(4,2)
             dtPoints = dtPoints.tolist()
             dtClass = dtValue[8]
-            if gtClass != dtClass: continue
-            if calculate_IoU(gtPoints, dtPoints) > iou_threshold:
-                if gtClass in matched:
-                    matched[gtClass] += 1
+            if gt_class != dtClass: continue
+            if calculate_IoU(gt_points, dtPoints) > iou_threshold:
+                if gt_class in matched:
+                    matched[gt_class] += 1
                 else:
-                    matched[gtClass] = 1                
+                    matched[gt_class] = 1                
     return matched
 
 def total_bounding_box(lists):
@@ -110,10 +110,10 @@ def diagram_text_to_dic(diagram_dir):
         total_val (dict): 도면 이름을 key로, box들을 value로 갖는 dict
     """
     dic = {}
-    for fileName in get_filenames(diagram_dir):
-        lis = text_to_list(diagram_dir + fileName)
-        diagramName = fileName.replace(".txt", "")
-        dic[diagramName] = lis
+    for file_name in get_filenames(diagram_dir):
+        lis = text_to_list(diagram_dir + file_name)
+        diagram_name = file_name.replace(".txt", "")
+        dic[diagram_name] = lis
     return dic
 
 def symbol_dict_text_to_dic(symbol_dict_dir):
@@ -143,11 +143,11 @@ def calculate_rotated_pr(gt_result, dt_result):
     pr_result = {}
 
     for diagram in gt_result.keys():
-        tpBoxes = compare_gt_and_dt_rotated(gt_result[diagram], dt_result[diagram], IoU_threshold)
-        gtBoxes = total_bounding_box(gt_result[diagram])
-        dtBoxes = total_bounding_box(dt_result[diagram])
+        tp_boxes = compare_gt_and_dt_rotated(gt_result[diagram], dt_result[diagram], IoU_threshold)
+        gt_boxes = total_bounding_box(gt_result[diagram])
+        dt_boxes = total_bounding_box(dt_result[diagram])
 
-        pr_result[diagram] = [dtBoxes, gtBoxes, tpBoxes]
+        pr_result[diagram] = [dt_boxes, gt_boxes, tp_boxes]
         print(f"precision and recall calculations for {diagram} have been completed")
 
     return pr_result
