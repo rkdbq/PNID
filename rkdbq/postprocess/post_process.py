@@ -3,37 +3,51 @@ import numpy as np
 from pathlib import Path
 from shapely.geometry import Polygon
 
-base_dir = "//Users//rkdbg//Codes//GitHub//PNID//rkdbq//postprocess//"
+base_dir = "C://Codes//GitHub//PNID//rkdbq//postprocess//"
+symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
 detected_base_dir = base_dir + "ORCNN_2//"
 detected_dir = detected_base_dir + "test//annfiles//"
 ground_truth_dir = base_dir + "PNID_DOTA//test//annfiles//"
 
+
 confidence_score_threshold = 0.5
 IoU_threshold = 0.5
 
-def getFilenames(dirname):
+def get_filenames(dirname):
     filenames = os.listdir(dirname)
     return filenames
 
-def makeDirectory(dir):
+def make_detected_file_directory(dir):
+    """ 클래스 별 분류된 텍스트 파일을 도면 별 분류된 텍스트 파일로 변환하여 저장할 경로 생성
+    """
     Path(dir).mkdir(parents=True, exist_ok=True)
 
-def addLineToDiagram(line, diagramDir, className):
+def add_line_to_diagram(line, diagram_dir, class_name):
     info = line.split()
     points = [round(float(i)) for i in info[2:10]]
-    confidenceScore = info[1]
-    if float(confidenceScore) < confidence_score_threshold: return
-    annfile = open(diagramDir + info[0] + ".txt", "a")
-    annfile.write(" ".join(map(str, points)) + " " + className + "\n")
+    confidence_score = info[1]
+    if float(confidence_score) < confidence_score_threshold: return
+    annfile = open(diagram_dir + info[0] + ".txt", "a")
+    annfile.write(" ".join(map(str, points)) + " " + class_name + "\n")
     annfile.close()
 
-def convertClassToDiagram(filesDir, diagramDir):
-    for fileName in getFilenames(filesDir):
-        if "Task1_" not in fileName: continue
-        className = fileName.replace("Task1_", "").replace(".txt", "")
-        curFile = open(filesDir + fileName, "r")
-        for line in curFile:
-            addLineToDiagram(line, diagramDir, className)   
+def convert_class_to_diagram(files_dir, diagram_dir):
+    """ 클래스 별 분류된 텍스트 파일을 도면 별 분류된 텍스트 파일로 변환
+
+    Arguments:
+        files_dir (string): 클래스 별 분류된 텍스트 파일들의 상위 경로
+        diagram_dir (string): 도면 별 분류된 텍스트 파일이 저장될 경로
+
+    Returns:
+        None
+
+    """
+    for file_name in get_filenames(files_dir):
+        if "Task1_" not in file_name: continue
+        class_name = file_name.replace("Task1_", "").replace(".txt", "")
+        cur_file = open(files_dir + file_name, "r")
+        for line in cur_file:
+            add_line_to_diagram(line, diagram_dir, class_name)   
 
 def calculate_IoU(gt, dt):
     gtRect = Polygon(gt)
@@ -41,7 +55,7 @@ def calculate_IoU(gt, dt):
     IoU = gtRect.intersection(dtRect).area / gtRect.union(dtRect).area
     return IoU
 
-def compare_gt_and_dt_rotated(gt, dt, iouThreshold):
+def compare_gt_and_dt_rotated(gt, dt, iou_threshold): # list -> map으로 구현 변경 필요.
     matched = {}
     for gtValue in gt:
         gtPoints = np.array([int(i) for i in gtValue[0:8]])
@@ -54,14 +68,14 @@ def compare_gt_and_dt_rotated(gt, dt, iouThreshold):
             dtPoints = dtPoints.tolist()
             dtClass = dtValue[8]
             if gtClass != dtClass: continue
-            if calculate_IoU(gtPoints, dtPoints) > iouThreshold:
+            if calculate_IoU(gtPoints, dtPoints) > iou_threshold:
                 if gtClass in matched:
                     matched[gtClass] += 1
                 else:
                     matched[gtClass] = 1                
     return matched
 
-def totalBoundingBox(lists):
+def total_bounding_box(lists):
     boxes = {}
     for value in lists:
         clss = value[8]
@@ -71,71 +85,49 @@ def totalBoundingBox(lists):
             boxes[clss] = 1
     return boxes
 
-def textToList(dir):
+def text_to_list(dir, split_word = " "):
     lis = []
     text = open(dir, "r")
-    for line in text:
-        info = line.split()
-        lis.append(info)
+    if split_word == " ":
+        for line in text:
+            info = line.split()
+            lis.append(info)     
+    else:
+        for line in text:
+            info = line.split(split_word)
+            lis.append(info)
+
     return lis
 
-def textToDic(filesDir):
-    for fileName in getFilenames(filesDir):
-        lis = textToList(filesDir + fileName)
-        dic = {}
+
+def diagram_text_to_dic(diagram_dir):
+    """ 도면 별 분류된 텍스트 파일을 dic으로 파싱
+
+    Arguments:
+        diagram_dir (string): 도면 별 분류된 텍스트 파일들의 상위 경로
+
+    Returns:
+        total_val (dict): 도면 이름을 key로, box들을 value로 갖는 dict
+    """
+    dic = {}
+    for fileName in get_filenames(diagram_dir):
+        lis = text_to_list(diagram_dir + fileName)
         diagramName = fileName.replace(".txt", "")
         dic[diagramName] = lis
     return dic
 
-def totalValue(dic):
-    totalValue = 0
+def symbol_dict_text_to_dic(symbol_dict_dir):
+    lis = text_to_list(symbol_dict_dir, "|")
+    dic = {}
+    for symbol in lis:
+        dic[symbol[1].replace("\n", "")] = int(symbol[0])
+    return dic
+
+def total_value(dic):
+    total_val = 0
     for value in dic.values():
-        totalValue += value
-    return totalValue
-
-def precision(tp, dt):
-    return totalValue(tp) / totalValue(dt)
-
-def recall(tp, gt):
-    return totalValue(tp) / totalValue(gt)
-
-def addLineToResult(fileName, dir):
-    resultFile = open(dir + "result.txt", "a")
-
-    tpBoxes = compare_gt_and_dt_rotated(textToList(ground_truth_dir + fileName), textToList(detected_dir + fileName), IoU_threshold)
-    gtBoxes = totalBoundingBox(textToList(ground_truth_dir + fileName))
-    dtBoxes = totalBoundingBox(textToList(detected_dir + fileName))
-
-    tpTotal = totalValue(tpBoxes)
-    gtTotal = totalValue(gtBoxes)
-    dtTotal = totalValue(dtBoxes)
-
-    diagramName = fileName.replace(".txt", "")
-    resultFile.write(f"test drawing : {diagramName}----------------------------------\n")
-    resultFile.write(f"total precision : {tpTotal} / {dtTotal} = {tpTotal / dtTotal}\n")
-    resultFile.write(f"total recall : {tpTotal} / {gtTotal} = {tpTotal / gtTotal}\n")
-
-    for key in gtBoxes.keys():
-        if key not in tpBoxes:
-            tpBoxes[key] = 0
-            dtBoxes[key] = 0
-        resultFile.write(f"{key} : {tpBoxes[key]} / {gtBoxes[key]}\n")
-
-    resultFile.write("\n")
-    resultFile.close()
-
-    return [tpTotal, dtTotal, tpTotal, gtTotal]
-
-def writeResult(filesDir, resultDir):
-    mean = []
-    for fileName in getFilenames(filesDir):
-        mean += addLineToResult(fileName, resultDir)
-
-    meanPrecision = mean[0] / mean[1]
-    meanRecall = mean[2] / mean[3]
-
-    resultFile = open(resultDir + "result.txt", "a")
-    resultFile.write(f"(mean precision, mean recall) = ({meanPrecision}, {meanRecall})")
+        total_val += value
+    return total_val
 
 def calculate_rotated_pr(gt_result, dt_result):
     """ 전체 test 도면에 대한 precision 및 recall 계산
@@ -152,10 +144,11 @@ def calculate_rotated_pr(gt_result, dt_result):
 
     for diagram in gt_result.keys():
         tpBoxes = compare_gt_and_dt_rotated(gt_result[diagram], dt_result[diagram], IoU_threshold)
-        gtBoxes = totalBoundingBox(gt_result[diagram])
-        dtBoxes = totalBoundingBox(dt_result[diagram])
+        gtBoxes = total_bounding_box(gt_result[diagram])
+        dtBoxes = total_bounding_box(dt_result[diagram])
 
         pr_result[diagram] = [dtBoxes, gtBoxes, tpBoxes]
+        print(f"precision and recall calculations for {diagram} have been completed")
 
     return pr_result
 
@@ -169,48 +162,58 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
         Returns:
             None
         """
-        tpMean = 0
-        gtMean = 0
-        dtMean = 0
+        tp_mean = 0
+        gt_mean = 0
+        dt_mean = 0
 
         for diagram in pr_result.keys():
-            dtBoxes = pr_result[diagram][0]
-            gtBoxes = pr_result[diagram][1]
-            tpBoxes = pr_result[diagram][2]
+            dt_boxes = pr_result[diagram][0]
+            gt_boxes = pr_result[diagram][1]
+            tp_boxes = pr_result[diagram][2]
 
-            tpTotal = totalValue(tpBoxes)
-            gtTotal = totalValue(gtBoxes)
-            dtTotal = totalValue(dtBoxes)
+            tp_total = total_value(tp_boxes)
+            gt_total = total_value(gt_boxes)
+            dt_total = total_value(dt_boxes)
 
-            tpMean += tpTotal
-            gtMean += gtTotal
-            dtMean += dtTotal
+            tp_mean += tp_total
+            gt_mean += gt_total
+            dt_mean += dt_total
 
-            resultFile = open(base_dir + "result.txt", "a")
-            resultFile.write(f"test drawing : {diagram}----------------------------------\n")
-            resultFile.write(f"total precision : {tpTotal} / {dtTotal} = {tpTotal / dtTotal}\n")
-            resultFile.write(f"total recall : {tpTotal} / {gtTotal} = {tpTotal / gtTotal}\n")
+            result_file = open(base_dir + "result.txt", "a")
+            result_file.write(f"test drawing : {diagram}----------------------------------\n")
+            result_file.write(f"total precision : {tp_total} / {dt_total} = {tp_total / dt_total}\n")
+            result_file.write(f"total recall : {tp_total} / {gt_total} = {tp_total / gt_total}\n")
 
-            for key in gtBoxes.keys():
-                if key not in tpBoxes:
-                    tpBoxes[key] = 0
-                    dtBoxes[key] = 0
-                resultFile.write(f"{key} : {tpBoxes[key]} / {gtBoxes[key]}\n")
+            for key in symbol_dict.keys():
+                if key not in gt_boxes:
+                    continue
+                if key not in tp_boxes:
+                    tp_boxes[key] = 0
+                    dt_boxes[key] = 0
+                
+                result_file.write(f"class {symbol_dict[key]} (['{key}']) : {tp_boxes[key]} / {gt_boxes[key]}\n")
 
-            resultFile.write("\n")
-            resultFile.close()
+            # for key in gt_boxes.keys():
+            #     if key not in tp_boxes:
+            #         tp_boxes[key] = 0
+            #         dt_boxes[key] = 0
+            #     result_file.write(f"class {symbol_dict[key]} (['{key}']) : {tp_boxes[key]} / {gt_boxes[key]}\n")
+
+            result_file.write("\n")
+            result_file.close()
         
-        resultFile = open(base_dir + "result.txt", "a")
-        resultFile.write(f"(mean precision, mean recall) = ({tpMean / dtMean}, {tpMean / gtMean})")
+        result_file = open(base_dir + "result.txt", "a")
+        result_file.write(f"(mean precision, mean recall) = ({tp_mean / dt_mean}, {tp_mean / gt_mean})")
 
+# example
+make_detected_file_directory(detected_dir)
+convert_class_to_diagram(detected_base_dir, detected_dir)
 
-makeDirectory(detected_dir)
-convertClassToDiagram(detected_base_dir, detected_dir)
+gt_result = diagram_text_to_dic(ground_truth_dir)
+dt_result = diagram_text_to_dic(detected_dir)
 
-gt_result = textToDic(ground_truth_dir)
-dt_result = textToDic(detected_dir)
 pr_result = calculate_rotated_pr(gt_result, dt_result)
 
-print("write result.txt file...")
-dump_rotated_pr_result(pr_result)
-print("write result.txt file done!")
+symbol_dict = symbol_dict_text_to_dic(symbol_dict_dir)
+
+dump_rotated_pr_result(pr_result, symbol_dict)
