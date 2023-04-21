@@ -22,10 +22,10 @@ class rotated_box:
             self.vertices = [self.p0, self.p1, self.p2, self.p3]
 
         else:
-            self.vertices = [(vertices[0], vertices[1]),
-                            (vertices[2], vertices[3]),
-                            (vertices[4], vertices[5]),
-                            (vertices[6], vertices[7])]
+            self.vertices = [(int(vertices[0]), int(vertices[1])),
+                            (int(vertices[2]), int(vertices[3])),
+                            (int(vertices[4]), int(vertices[5])),
+                            (int(vertices[6]), int(vertices[7]))]
         self.text = text
 
     def get_4_points(self):
