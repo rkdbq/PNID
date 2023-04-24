@@ -5,9 +5,10 @@ from post_process import diagram_text_to_dic
 
 # XML 데이터 검증을 위한 가시화 코드
 
-drawing_img_dir = r"//Users//rkdbg//Codes//GitHub//tuna1210//PNID//PNID_DOTA_before_split//test//images//"
-output_img_dir = r"//Users//rkdbg//Codes//GitHub//tuna1210//PNID//visualized_images//"
-diagram_dir = r"//Users//rkdbg//Codes//GitHub//tuna1210//PNID//PNID_DOTA_before_split//test//detected//"
+diagram = "roi_trans"
+drawing_img_dir = "//Users//rkdbg//Codes//GitHub//PNID_DOTA//test//images//"
+output_img_dir = f"//Users//rkdbg//Codes//GitHub//PNID_DOTA//visualized_images//{diagram}//"
+diagram_dir = f"//Users//rkdbg//Codes//GitHub//tuna1210//PNID//PNID_DOTA_before_split//test//detected//"
 
 dt_result = diagram_text_to_dic(diagram_dir)
 
