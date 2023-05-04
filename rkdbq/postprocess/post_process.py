@@ -166,7 +166,7 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
         gt_mean = 0
         dt_mean = 0
 
-        ap = 0
+        ap_mean = 0
 
         for diagram in pr_result.keys():
             dt_boxes = pr_result[diagram][0]
@@ -196,13 +196,13 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
                 result_file.write(f"class {symbol_dict[key]} (['{key}']) : {tp_boxes[key]} / {gt_boxes[key]}\n")
                 if dt_boxes[key] == 0: 
                     continue
-                ap = ap + (tp_boxes[key] / dt_boxes[key]) / len(symbol_dict.keys())
+                ap_mean = ap_mean + (tp_boxes[key] / dt_boxes[key]) / len(symbol_dict.keys())
 
             result_file.write("\n")
             result_file.close()
         
         result_file = open(f"{base_dir}{diagram_name}_result.txt", "a")
-        result_file.write(f"(mean precision, mean recall, map{(int)(IoU_threshold * 100)}) = ({tp_mean / dt_mean}, {tp_mean / gt_mean}, {ap})")
+        result_file.write(f"(mean precision, mean recall, mean ap{(int)(IoU_threshold * 100)}) = ({tp_mean / dt_mean}, {tp_mean / gt_mean}, {ap_mean})")
 
 # example
 make_detected_file_directory(detected_dir)
