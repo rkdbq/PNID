@@ -1,14 +1,15 @@
 import os
 import numpy as np
+from tqdm import tqdm
 from pathlib import Path
 from shapely.geometry import Polygon
 
+diagram_name = "oriented_rcnn"
 base_dir = "C://Codes//GitHub//PNID//rkdbq//postprocess//"
 symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
-detected_base_dir = base_dir + "ORCNN_2//"
+detected_base_dir = base_dir + diagram_name + "//"
 detected_dir = detected_base_dir + "test//annfiles//"
 ground_truth_dir = base_dir + "PNID_DOTA//test//annfiles//"
-
 
 confidence_score_threshold = 0.5
 IoU_threshold = 0.5
@@ -55,7 +56,7 @@ def calculate_IoU(gt, dt):
     IoU = gt_rect.intersection(dt_rect).area / gt_rect.union(dt_rect).area
     return IoU
 
-def compare_gt_and_dt_rotated(gt, dt, iou_threshold): # list -> map으로 구현 변경 필요.
+def compare_gt_and_dt_rotated(gt, dt, iou_threshold):
     matched = {}
     for gt_value in gt:
         gt_points = np.array([int(i) for i in gt_value[0:8]])
@@ -142,13 +143,12 @@ def calculate_rotated_pr(gt_result, dt_result):
 
     pr_result = {}
 
-    for diagram in gt_result.keys():
+    for diagram in tqdm(gt_result.keys(), desc="precision and recall calculations"):
         tp_boxes = compare_gt_and_dt_rotated(gt_result[diagram], dt_result[diagram], IoU_threshold)
         gt_boxes = total_bounding_box(gt_result[diagram])
         dt_boxes = total_bounding_box(dt_result[diagram])
 
         pr_result[diagram] = [dt_boxes, gt_boxes, tp_boxes]
-        print(f"precision and recall calculations for {diagram} have been completed")
 
     return pr_result
 
@@ -166,6 +166,8 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
         gt_mean = 0
         dt_mean = 0
 
+        ap = 0
+
         for diagram in pr_result.keys():
             dt_boxes = pr_result[diagram][0]
             gt_boxes = pr_result[diagram][1]
@@ -179,7 +181,7 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
             gt_mean += gt_total
             dt_mean += dt_total
 
-            result_file = open(base_dir + "result.txt", "a")
+            result_file = open(f"{base_dir}{diagram_name}_result.txt", "a")
             result_file.write(f"test drawing : {diagram}----------------------------------\n")
             result_file.write(f"total precision : {tp_total} / {dt_total} = {tp_total / dt_total}\n")
             result_file.write(f"total recall : {tp_total} / {gt_total} = {tp_total / gt_total}\n")
@@ -192,18 +194,15 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
                     dt_boxes[key] = 0
                 
                 result_file.write(f"class {symbol_dict[key]} (['{key}']) : {tp_boxes[key]} / {gt_boxes[key]}\n")
-
-            # for key in gt_boxes.keys():
-            #     if key not in tp_boxes:
-            #         tp_boxes[key] = 0
-            #         dt_boxes[key] = 0
-            #     result_file.write(f"class {symbol_dict[key]} (['{key}']) : {tp_boxes[key]} / {gt_boxes[key]}\n")
+                if dt_boxes[key] == 0: 
+                    continue
+                ap = ap + (tp_boxes[key] / dt_boxes[key]) / len(symbol_dict.keys())
 
             result_file.write("\n")
             result_file.close()
         
-        result_file = open(base_dir + "result.txt", "a")
-        result_file.write(f"(mean precision, mean recall) = ({tp_mean / dt_mean}, {tp_mean / gt_mean})")
+        result_file = open(f"{base_dir}{diagram_name}_result.txt", "a")
+        result_file.write(f"(mean precision, mean recall, map{(int)(IoU_threshold * 100)}) = ({tp_mean / dt_mean}, {tp_mean / gt_mean}, {ap})")
 
 # example
 make_detected_file_directory(detected_dir)
