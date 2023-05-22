@@ -4,8 +4,8 @@ from tqdm import tqdm
 from pathlib import Path
 from shapely.geometry import Polygon
 
-diagram_name = "oriented_rcnn"
-base_dir = "C://Codes//GitHub//PNID//rkdbq//postprocess//"
+diagram_name = "rotated_retinanet"
+base_dir = "//Users//rkdbg//Codes//GitHub//PNID//rkdbq//postprocess//"
 symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
 detected_base_dir = base_dir + diagram_name + "//"
 detected_dir = detected_base_dir + "test//annfiles//"
