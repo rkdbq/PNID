@@ -195,7 +195,7 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
         result_file.write(f"IoU threshold : {IoU_threshold}\n")
         result_file.write("\n")
 
-        for diagram in reversed(pr_result.keys()):
+        for diagram in pr_result.keys():
             dt_boxes = pr_result[diagram][0]
             gt_boxes = pr_result[diagram][1]
             tp_boxes = pr_result[diagram][2]
