@@ -1,0 +1,107 @@
+Model : s2anet
+IoU threshold : 0.5
+
+test drawing : 26071-200-M6-052-00001----------------------------------
+total precision : 409 / 411 = 0.9951338199513382
+total recall : 409 / 411 = 0.9951338199513382
+class 1 (['flange']) : 15 / 15
+class 2 (['gate_valve']) : 14 / 14
+class 3 (['flanged_nozzle']) : 13 / 13
+class 4 (['concentric_reducer']) : 7 / 7
+class 5 (['utility_conenction']) : 6 / 6
+class 6 (['off_page_connector']) : 7 / 7
+class 8 (['gate_valve_with_plug']) : 13 / 13
+class 10 (['open_figure_8_blind']) : 4 / 4
+class 11 (['check_valve']) : 2 / 2
+class 12 (['globe_valve']) : 4 / 4
+class 17 (['closed_figure_8_blind']) : 1 / 1
+class 18 (['open_drain_connectors']) : 1 / 1
+class 37 (['desuperheater']) : 1 / 1
+class 75 (['discrete_instruments_field_mounted']) : 17 / 17
+class 76 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 8 / 8
+class 77 (['end_gap']) : 1 / 1
+class 79 (['chemical_seal_diaphragm']) : 2 / 2
+class 80 (['diaphragm']) : 2 / 2
+class 82 (['pressure_relief_or_safety_valve']) : 1 / 1
+class 87 (['vortex']) : 1 / 1
+class 102 (['function_low_signal_selector']) : 1 / 1
+class 103 (['function_unspecified']) : 1 / 1
+class 123 (['shell_type_e']) : 0 / 1
+class 124 (['vertical_drum']) : 0 / 1
+class 126 (['front_end_type_a']) : 1 / 1
+class 130 (['real_end_type_s']) : 1 / 1
+class 176 (['annotation']) : 4 / 4
+class 177 (['spec_break']) : 2 / 2
+class 178 (['text']) : 279 / 279
+
+test drawing : 26071-200-M6-052-00002----------------------------------
+total precision : 555 / 558 = 0.9946236559139785
+total recall : 555 / 558 = 0.9946236559139785
+class 1 (['flange']) : 19 / 19
+class 2 (['gate_valve']) : 23 / 23
+class 3 (['flanged_nozzle']) : 13 / 13
+class 4 (['concentric_reducer']) : 13 / 13
+class 5 (['utility_conenction']) : 21 / 21
+class 6 (['off_page_connector']) : 4 / 4
+class 8 (['gate_valve_with_plug']) : 14 / 14
+class 9 (['ball_valve']) : 1 / 1
+class 10 (['open_figure_8_blind']) : 6 / 6
+class 11 (['check_valve']) : 1 / 1
+class 12 (['globe_valve']) : 5 / 5
+class 13 (['gate_valve_with_flange']) : 4 / 4
+class 17 (['closed_figure_8_blind']) : 3 / 3
+class 18 (['open_drain_connectors']) : 2 / 2
+class 37 (['desuperheater']) : 1 / 1
+class 75 (['discrete_instruments_field_mounted']) : 19 / 19
+class 76 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 11 / 11
+class 77 (['end_gap']) : 3 / 3
+class 79 (['chemical_seal_diaphragm']) : 4 / 4
+class 80 (['diaphragm']) : 3 / 3
+class 81 (['restriction_orifice']) : 1 / 1
+class 82 (['pressure_relief_or_safety_valve']) : 3 / 3
+class 87 (['vortex']) : 1 / 1
+class 102 (['function_low_signal_selector']) : 1 / 1
+class 103 (['function_unspecified']) : 1 / 1
+class 123 (['shell_type_e']) : 1 / 1
+class 124 (['vertical_drum']) : 0 / 1
+class 126 (['front_end_type_a']) : 1 / 1
+class 130 (['real_end_type_s']) : 1 / 1
+class 176 (['annotation']) : 8 / 8
+class 177 (['spec_break']) : 1 / 1
+class 178 (['text']) : 366 / 368
+
+test drawing : 26071-200-M6-052-00003----------------------------------
+total precision : 492 / 495 = 0.9939393939393939
+total recall : 492 / 496 = 0.9919354838709677
+class 1 (['flange']) : 15 / 15
+class 2 (['gate_valve']) : 18 / 18
+class 3 (['flanged_nozzle']) : 18 / 18
+class 4 (['concentric_reducer']) : 8 / 8
+class 5 (['utility_conenction']) : 14 / 14
+class 6 (['off_page_connector']) : 5 / 5
+class 7 (['blind_flange']) : 2 / 4
+class 8 (['gate_valve_with_plug']) : 8 / 8
+class 10 (['open_figure_8_blind']) : 2 / 2
+class 11 (['check_valve']) : 4 / 4
+class 12 (['globe_valve']) : 5 / 5
+class 13 (['gate_valve_with_flange']) : 2 / 2
+class 18 (['open_drain_connectors']) : 2 / 2
+class 20 (['spacer']) : 2 / 2
+class 27 (['removable_spool']) : 1 / 1
+class 34 (['swing_elbow']) : 1 / 1
+class 75 (['discrete_instruments_field_mounted']) : 11 / 11
+class 76 (['shared_display_and_control_primary_location_normally_accessible_to_an_operator']) : 7 / 7
+class 78 (['plc_primary_location_normally_inaccessible_to_an_operator']) : 3 / 3
+class 79 (['chemical_seal_diaphragm']) : 6 / 6
+class 80 (['diaphragm']) : 2 / 2
+class 82 (['pressure_relief_or_safety_valve']) : 2 / 2
+class 85 (['cylinder']) : 2 / 2
+class 93 (['discrete_instruments_primary_location_normally_accessible_to_an_operator']) : 1 / 1
+class 121 (['vortex_breaker']) : 2 / 2
+class 127 (['horizontal_drum']) : 0 / 1
+class 133 (['boot_w_head']) : 0 / 1
+class 176 (['annotation']) : 6 / 6
+class 177 (['spec_break']) : 8 / 8
+class 178 (['text']) : 335 / 335
+
+(mean precision, mean recall) = (0.994535519125683, 0.9938566552901024)

@@ -1,27 +1,45 @@
-import os
+import os, shutil, sys, argparse
 import numpy as np
 from tqdm import tqdm
 from pathlib import Path
 from shapely.geometry import Polygon
 
-diagram_name = "rotated_retinanet"
+model_name = "s2anet"
 base_dir = "//Users//rkdbg//Codes//GitHub//PNID//rkdbq//postprocess//"
 symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
-detected_base_dir = base_dir + diagram_name + "//"
+detected_base_dir = base_dir + model_name + "//"
 detected_dir = detected_base_dir + "test//annfiles//"
 ground_truth_dir = base_dir + "PNID_DOTA//test//annfiles//"
+remove_dir_path = detected_base_dir + "test//"
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--iou", default="0.5", help="IoU_threshold를 입력하세요.")
+parser.add_argument("--total", default="True")
+args = parser.parse_args()
 
 confidence_score_threshold = 0.5
-IoU_threshold = 0.5
+IoU_threshold = float(args.iou)
+before_remove = True
+is_total = True
+if args.total == "False" or args.total == "false": is_total = False
 
 def get_filenames(dirname):
     filenames = os.listdir(dirname)
     return filenames
 
-def make_detected_file_directory(dir):
+def make_detected_file_directory(dir, init):
     """ 클래스 별 분류된 텍스트 파일을 도면 별 분류된 텍스트 파일로 변환하여 저장할 경로 생성
     """
+    if init:
+        remove_directory(remove_dir_path)
     Path(dir).mkdir(parents=True, exist_ok=True)
+
+def remove_directory(directory_path):
+    try:
+        shutil.rmtree(directory_path)
+        print(f"디렉토리 '{directory_path}'가 성공적으로 삭제되었습니다.")
+    except OSError as e:
+        print(f"디렉토리 '{directory_path}'를 삭제하는 동안 오류가 발생했습니다: {e}")
 
 def add_line_to_diagram(line, diagram_dir, class_name):
     info = line.split()
@@ -168,7 +186,16 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
 
         ap_mean = 0
 
-        for diagram in pr_result.keys():
+        if is_total:
+            result_file = open(f"{base_dir}{model_name}_iou{int(IoU_threshold*100)}_result.txt", "a")
+        else:
+            result_file = open(f"{base_dir}{model_name}_iou{int(IoU_threshold*100)}_123_result.txt", "a")
+        
+        result_file.write(f"Model : {model_name}\n")
+        result_file.write(f"IoU threshold : {IoU_threshold}\n")
+        result_file.write("\n")
+
+        for diagram in reversed(pr_result.keys()):
             dt_boxes = pr_result[diagram][0]
             gt_boxes = pr_result[diagram][1]
             tp_boxes = pr_result[diagram][2]
@@ -181,7 +208,6 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
             gt_mean += gt_total
             dt_mean += dt_total
 
-            result_file = open(f"{base_dir}{diagram_name}_result.txt", "a")
             result_file.write(f"test drawing : {diagram}----------------------------------\n")
             result_file.write(f"total precision : {tp_total} / {dt_total} = {tp_total / dt_total}\n")
             result_file.write(f"total recall : {tp_total} / {gt_total} = {tp_total / gt_total}\n")
@@ -199,13 +225,12 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
                 ap_mean = ap_mean + (tp_boxes[key] / dt_boxes[key]) / len(symbol_dict.keys())
 
             result_file.write("\n")
-            result_file.close()
         
-        result_file = open(f"{base_dir}{diagram_name}_result.txt", "a")
-        result_file.write(f"(mean precision, mean recall, mean ap{(int)(IoU_threshold * 100)}) = ({tp_mean / dt_mean}, {tp_mean / gt_mean}, {ap_mean})")
+        result_file.write(f"(mean precision, mean recall) = ({tp_mean / dt_mean}, {tp_mean / gt_mean})")
+        result_file.close()
 
 # example
-make_detected_file_directory(detected_dir)
+make_detected_file_directory(detected_dir, before_remove)
 convert_class_to_diagram(detected_base_dir, detected_dir)
 
 gt_result = diagram_text_to_dic(ground_truth_dir)
