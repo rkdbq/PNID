@@ -8,7 +8,6 @@ model_name = "s2anet"
 base_dir = "//Users//rkdbg//Codes//GitHub//PNID//rkdbq//postprocess//"
 symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
 detected_base_dir = base_dir + model_name + "//"
-detected_dir = detected_base_dir + "test//annfiles//"
 ground_truth_dir = base_dir + "PNID_DOTA//test//annfiles//"
 remove_dir_path = detected_base_dir + "test//"
 
@@ -19,9 +18,11 @@ args = parser.parse_args()
 
 confidence_score_threshold = 0.5
 IoU_threshold = float(args.iou)
-before_remove = True
+before_remove = False
 is_total = True
 if args.total == "False" or args.total == "false": is_total = False
+
+detected_dir = detected_base_dir + f"iou{int(IoU_threshold*100)}//test//annfiles//"
 
 def get_filenames(dirname):
     filenames = os.listdir(dirname)
