@@ -5,7 +5,7 @@ from pathlib import Path
 from shapely.geometry import Polygon
 
 model_name = "s2anet"
-base_dir = "//Users//rkdbg//Codes//GitHub//PNID//rkdbq//postprocess//"
+base_dir = "C://Codes//GitHub//PNID//rkdbq//postprocess//"
 symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
 detected_base_dir = base_dir + model_name + "//"
 ground_truth_dir = base_dir + "PNID_DOTA//test//annfiles//"
@@ -17,12 +17,16 @@ parser.add_argument("--total", default="True")
 args = parser.parse_args()
 
 confidence_score_threshold = 0.5
+confidence_score_threshold_range = np.arange(0, 1.0, 0.1)
 IoU_threshold = float(args.iou)
-before_remove = False
+before_remove = True
 is_total = True
 if args.total == "False" or args.total == "false": is_total = False
 
-detected_dir = detected_base_dir + f"iou{int(IoU_threshold*100)}//test//annfiles//"
+detected_iou_dir = detected_base_dir + f"iou{int(IoU_threshold*100)}//test//annfiles//"
+detected_dir = detected_base_dir + "test//annfiles//"
+
+pr_per_confidence = {} # {confidence score threshold, {class, precision}}
 
 def get_filenames(dirname):
     filenames = os.listdir(dirname)
@@ -42,7 +46,7 @@ def remove_directory(directory_path):
     except OSError as e:
         print(f"디렉토리 '{directory_path}'를 삭제하는 동안 오류가 발생했습니다: {e}")
 
-def add_line_to_diagram(line, diagram_dir, class_name):
+def add_line_to_diagram(line, diagram_dir, class_name, confidence_score_threshold):
     info = line.split()
     points = [round(float(i)) for i in info[2:10]]
     confidence_score = info[1]
@@ -51,7 +55,7 @@ def add_line_to_diagram(line, diagram_dir, class_name):
     annfile.write(" ".join(map(str, points)) + " " + class_name + "\n")
     annfile.close()
 
-def convert_class_to_diagram(files_dir, diagram_dir):
+def convert_class_to_diagram(files_dir, diagram_dir, confidence_score_threshold):
     """ 클래스 별 분류된 텍스트 파일을 도면 별 분류된 텍스트 파일로 변환
 
     Arguments:
@@ -67,7 +71,7 @@ def convert_class_to_diagram(files_dir, diagram_dir):
         class_name = file_name.replace("Task1_", "").replace(".txt", "")
         cur_file = open(files_dir + file_name, "r")
         for line in cur_file:
-            add_line_to_diagram(line, diagram_dir, class_name)   
+            add_line_to_diagram(line, diagram_dir, class_name, confidence_score_threshold)
 
 def calculate_IoU(gt, dt):
     gt_rect = Polygon(gt)
@@ -75,20 +79,23 @@ def calculate_IoU(gt, dt):
     IoU = gt_rect.intersection(dt_rect).area / gt_rect.union(dt_rect).area
     return IoU
 
-def compare_gt_and_dt_rotated(gt, dt, iou_threshold):
+def compare_gt_and_dt_rotated(gt, dt, iou_threshold, diagram):
     matched = {}
     for gt_value in gt:
         gt_points = np.array([int(i) for i in gt_value[0:8]])
         gt_points = gt_points.reshape(4,2)
         gt_points = gt_points.tolist()
         gt_class = gt_value[8]
-        for dtValue in dt:
-            dtPoints = np.array([int(i) for i in dtValue[0:8]])
-            dtPoints = dtPoints.reshape(4,2)
-            dtPoints = dtPoints.tolist()
-            dtClass = dtValue[8]
-            if gt_class != dtClass: continue
-            if calculate_IoU(gt_points, dtPoints) > iou_threshold:
+        for dt_value in dt:
+            dt_points = np.array([int(i) for i in dt_value[0:8]])
+            dt_points = dt_points.reshape(4,2)
+            dt_points = dt_points.tolist()
+            dt_class = dt_value[8]
+            if gt_class != dt_class: continue
+            if calculate_IoU(gt_points, dt_points) > iou_threshold:
+                annfile = open(f"{detected_iou_dir}{diagram}.txt", "a")
+                annfile.write(f"{dt_value[0]} {dt_value[1]} {dt_value[2]} {dt_value[3]} {dt_value[4]} {dt_value[5]} {dt_value[6]} {dt_value[7]} {dt_value[8]}\n")
+                annfile.close()
                 if gt_class in matched:
                     matched[gt_class] += 1
                 else:
@@ -163,7 +170,7 @@ def calculate_rotated_pr(gt_result, dt_result):
     pr_result = {}
 
     for diagram in tqdm(gt_result.keys(), desc="precision and recall calculations"):
-        tp_boxes = compare_gt_and_dt_rotated(gt_result[diagram], dt_result[diagram], IoU_threshold)
+        tp_boxes = compare_gt_and_dt_rotated(gt_result[diagram], dt_result[diagram], IoU_threshold, diagram)
         gt_boxes = total_bounding_box(gt_result[diagram])
         dt_boxes = total_bounding_box(dt_result[diagram])
 
@@ -171,7 +178,7 @@ def calculate_rotated_pr(gt_result, dt_result):
 
     return pr_result
 
-def dump_rotated_pr_result(pr_result, symbol_dict = 0):
+def dump_rotated_pr_result(pr_result, symbol_dict = 0, confidence_score_threshold = 0, mAP = 0):
         """ PR 계산 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
 
         Arguments:
@@ -194,7 +201,11 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
         
         result_file.write(f"Model : {model_name}\n")
         result_file.write(f"IoU threshold : {IoU_threshold}\n")
+        result_file.write(f"Confidence Score threshold : {confidence_score_threshold}\n")
         result_file.write("\n")
+
+        total_dt_boxes = {}
+        total_tp_boxes = {}
 
         for diagram in pr_result.keys():
             dt_boxes = pr_result[diagram][0]
@@ -214,6 +225,17 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
             result_file.write(f"total recall : {tp_total} / {gt_total} = {tp_total / gt_total}\n")
 
             for key in symbol_dict.keys():
+                if key not in tp_boxes:
+                    continue
+                if key not in total_tp_boxes:
+                    total_tp_boxes[key] = 0
+                if key not in total_dt_boxes:
+                    total_dt_boxes[key] = 0
+
+                total_tp_boxes[key] += tp_boxes[key]
+                total_dt_boxes[key] += dt_boxes[key]                
+
+            for key in symbol_dict.keys():
                 if key not in gt_boxes:
                     continue
                 if key not in tp_boxes:
@@ -227,12 +249,56 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0):
 
             result_file.write("\n")
         
-        result_file.write(f"(mean precision, mean recall) = ({tp_mean / dt_mean}, {tp_mean / gt_mean})")
+        result_file.write(f"(mean precision, mean recall, mAP) = ({tp_mean / dt_mean}, {tp_mean / gt_mean}, {mAP})")
         result_file.close()
 
+        for cls in total_tp_boxes.keys():
+            pr = {cls: total_tp_boxes[key] / total_dt_boxes[key]}
+            pr_per_confidence[confidence_score_threshold] = pr
+
+def calculate_mAP():
+    ap = {}
+    mAP = 0
+    for cls in symbol_dict.keys():
+        for confidence in confidence_score_threshold_range:
+            if cls not in pr_per_confidence[confidence]: 
+                ap[cls] = 0
+                break
+            if cls not in ap:
+                ap[cls] = 0
+            print(f"confidence: {confidence}, class: {cls}, precision: {pr_per_confidence[confidence][cls]}")
+            ap[cls] += pr_per_confidence[confidence][cls]
+
+        # ap[cls] /= 11
+        # print(f"{cls}: {ap[cls]}")
+        # mAP += ap[cls]
+        # print(f"mAP = {mAP}")
+    
+    print(symbol_dict.__len__())
+    mAP /= symbol_dict.__len__()
+    return mAP
+
 # example
+
+for confidence_score_threshold in confidence_score_threshold_range:
+    make_detected_file_directory(detected_dir, before_remove)
+    make_detected_file_directory(detected_iou_dir, False)
+    convert_class_to_diagram(detected_base_dir, detected_dir, confidence_score_threshold)
+
+    gt_result = diagram_text_to_dic(ground_truth_dir)
+    dt_result = diagram_text_to_dic(detected_dir)
+
+    pr_result = calculate_rotated_pr(gt_result, dt_result)
+
+    symbol_dict = symbol_dict_text_to_dic(symbol_dict_dir)
+
+    dump_rotated_pr_result(pr_result, symbol_dict, confidence_score_threshold)
+
+mAP = calculate_mAP()
+
 make_detected_file_directory(detected_dir, before_remove)
-convert_class_to_diagram(detected_base_dir, detected_dir)
+make_detected_file_directory(detected_iou_dir, False)
+convert_class_to_diagram(detected_base_dir, detected_dir, confidence_score_threshold)
 
 gt_result = diagram_text_to_dic(ground_truth_dir)
 dt_result = diagram_text_to_dic(detected_dir)
@@ -241,4 +307,4 @@ pr_result = calculate_rotated_pr(gt_result, dt_result)
 
 symbol_dict = symbol_dict_text_to_dic(symbol_dict_dir)
 
-dump_rotated_pr_result(pr_result, symbol_dict)
+dump_rotated_pr_result(pr_result, symbol_dict, confidence_score_threshold, mAP)
