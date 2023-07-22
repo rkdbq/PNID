@@ -4,12 +4,11 @@ from tqdm import tqdm
 from pathlib import Path
 from shapely.geometry import Polygon
 
-model_name = "s2anet"
-base_dir = "C://Codes//GitHub//PNID//rkdbq//postprocess//"
+model_name = "cfa"
+base_dir = "//Users//rkdbg//Codes//GitHub//PNID//rkdbq//postprocess//"
 symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
 detected_base_dir = base_dir + model_name + "//"
 ground_truth_dir = base_dir + "PNID_DOTA//test//annfiles//"
-remove_dir_path = detected_base_dir + "test//"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--iou", default="0.5", help="IoU_threshold를 입력하세요.")
@@ -17,14 +16,13 @@ parser.add_argument("--total", default="True")
 args = parser.parse_args()
 
 confidence_score_threshold = 0.5
-confidence_score_threshold_range = np.arange(0, 1.0, 0.1)
 IoU_threshold = float(args.iou)
 before_remove = True
 is_total = True
 if args.total == "False" or args.total == "false": is_total = False
 
+remove_iou_path = detected_base_dir + f"iou{int(IoU_threshold*100)}//"
 detected_iou_dir = detected_base_dir + f"iou{int(IoU_threshold*100)}//test//annfiles//"
-detected_dir = detected_base_dir + "test//annfiles//"
 
 pr_per_confidence = {} # {confidence score threshold, {class, precision}}
 
@@ -36,15 +34,15 @@ def make_detected_file_directory(dir, init):
     """ 클래스 별 분류된 텍스트 파일을 도면 별 분류된 텍스트 파일로 변환하여 저장할 경로 생성
     """
     if init:
-        remove_directory(remove_dir_path)
+        remove_directory(remove_iou_path)
     Path(dir).mkdir(parents=True, exist_ok=True)
 
 def remove_directory(directory_path):
     try:
         shutil.rmtree(directory_path)
-        print(f"디렉토리 '{directory_path}'가 성공적으로 삭제되었습니다.")
+        print(f"디렉토리 '{directory_path}' 경로 초기화 완료")
     except OSError as e:
-        print(f"디렉토리 '{directory_path}'를 삭제하는 동안 오류가 발생했습니다: {e}")
+        print(f"디렉토리 '{directory_path}' 경로 초기화 오류: {e}")
 
 def add_line_to_diagram(line, diagram_dir, class_name, confidence_score_threshold):
     info = line.split()
@@ -125,7 +123,6 @@ def text_to_list(dir, split_word = " "):
             lis.append(info)
 
     return lis
-
 
 def diagram_text_to_dic(diagram_dir):
     """ 도면 별 분류된 텍스트 파일을 dic으로 파싱
@@ -256,55 +253,16 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0, confidence_score_threshol
             pr = {cls: total_tp_boxes[key] / total_dt_boxes[key]}
             pr_per_confidence[confidence_score_threshold] = pr
 
-def calculate_mAP():
-    ap = {}
-    mAP = 0
-    for cls in symbol_dict.keys():
-        for confidence in confidence_score_threshold_range:
-            if cls not in pr_per_confidence[confidence]: 
-                ap[cls] = 0
-                break
-            if cls not in ap:
-                ap[cls] = 0
-            print(f"confidence: {confidence}, class: {cls}, precision: {pr_per_confidence[confidence][cls]}")
-            ap[cls] += pr_per_confidence[confidence][cls]
+# use
 
-        # ap[cls] /= 11
-        # print(f"{cls}: {ap[cls]}")
-        # mAP += ap[cls]
-        # print(f"mAP = {mAP}")
-    
-    print(symbol_dict.__len__())
-    mAP /= symbol_dict.__len__()
-    return mAP
-
-# example
-
-for confidence_score_threshold in confidence_score_threshold_range:
-    make_detected_file_directory(detected_dir, before_remove)
-    make_detected_file_directory(detected_iou_dir, False)
-    convert_class_to_diagram(detected_base_dir, detected_dir, confidence_score_threshold)
-
-    gt_result = diagram_text_to_dic(ground_truth_dir)
-    dt_result = diagram_text_to_dic(detected_dir)
-
-    pr_result = calculate_rotated_pr(gt_result, dt_result)
-
-    symbol_dict = symbol_dict_text_to_dic(symbol_dict_dir)
-
-    dump_rotated_pr_result(pr_result, symbol_dict, confidence_score_threshold)
-
-mAP = calculate_mAP()
-
-make_detected_file_directory(detected_dir, before_remove)
-make_detected_file_directory(detected_iou_dir, False)
-convert_class_to_diagram(detected_base_dir, detected_dir, confidence_score_threshold)
+make_detected_file_directory(detected_iou_dir, before_remove)
+convert_class_to_diagram(detected_base_dir, detected_iou_dir, confidence_score_threshold)
 
 gt_result = diagram_text_to_dic(ground_truth_dir)
-dt_result = diagram_text_to_dic(detected_dir)
+dt_result = diagram_text_to_dic(detected_iou_dir)
 
 pr_result = calculate_rotated_pr(gt_result, dt_result)
 
 symbol_dict = symbol_dict_text_to_dic(symbol_dict_dir)
 
-dump_rotated_pr_result(pr_result, symbol_dict, confidence_score_threshold, mAP)
+dump_rotated_pr_result(pr_result, symbol_dict, confidence_score_threshold)
