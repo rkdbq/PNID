@@ -10,11 +10,11 @@ import time
 
 # Test 결과의 성능 계산 및 이미지 출력 코드
 
-gt_json_filepath = "C:\\Users\\DongwonJeong\\Desktop\\HyundaiPNID\\Dataset\\Dataset_Add_Text_Rotated\\test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
-dt_json_filepath = "C:\\Users\\DongwonJeong\\Desktop\\HyundaiPNID\\mmdetection-2.25.1\\srcnn.rotated.test.bbox.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
-output_dir = "C:\\Users\\DongwonJeong\\Desktop\\HyundaiPNID\\Results\\Dataset_Text_Rotated\\"  # 출력 파일들이 저장될 폴더
+gt_json_filepath = "C:\\Codes\\GitHub\\PNID\\old\\test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
+dt_json_filepath = "C:\\Codes\\GitHub\\PNID\\old\\results.bbox_sr.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
+output_dir = "C:\\Codes\\GitHub\\PNID\\old\\results_sr\\"  # 출력 파일들이 저장될 폴더
 
-data_root = 'C:\\Users\\DongwonJeong\\Desktop\\HyundaiPNID\\Data\\'
+data_root = 'C:\\Codes\\GitHub\\PNID\\old\\Data\\'
 drawing_dir = data_root + "Drawing\\JPG\\"  # 원본 도면 이미지 폴더
 symbol_xml_dir = data_root +"SymbolXML"  # 원본 도면 이미지와 함께 제공된 Symbol XML 폴더
 text_xml_dir = data_root +"TextXML"  # 원본 도면 이미지와 함께 제공된 Text XML 폴더
