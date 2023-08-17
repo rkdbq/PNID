@@ -382,7 +382,6 @@ class evaluate():
         """
 
         recognition_result = {}
-        recognition_result_rotated = {}
 
         for filename, gt_to_dt_match in gt_to_dt_match_dict.items():
             recog_count = 0
@@ -390,11 +389,11 @@ class evaluate():
             for gt_id, dt_id in gt_to_dt_match.items():
                 if gt_result[filename][gt_id]['category_id'] != text_symbol_num: continue
                 if dt_result[filename][dt_id]['category_id'] != text_symbol_num: continue
-                if gt_result[filename][gt_id]['text'] == '': continue
+                if 'text' not in dt_result[filename][dt_id]: continue
                 if gt_result[filename][gt_id]['text'] == dt_result[filename][dt_id]['text']: recog_count += 1
 
             for gt_value in gt_result[filename]:
-                if gt_value['category_id'] == text_symbol_num and gt_value['text'] != '': gt_text_count += 1 
+                if gt_value['category_id'] == text_symbol_num: gt_text_count += 1 
             
             recognition_result[filename] = {"all_gt_text_num" : gt_text_count, "recognized_num" : recog_count, "recognition" : recog_count / gt_text_count}
 

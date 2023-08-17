@@ -131,7 +131,6 @@ class gt_dt_data():
                     else:
                         converted_text_object_list = [["text", x[1], x[2], x[3], x[4], x[6]] for x in text_object_list]
                     object_list = object_list + converted_text_object_list
-                    
 
             image = {
                 "file_name": f"{test_image_filename}.jpg",
