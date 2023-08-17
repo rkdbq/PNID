@@ -13,7 +13,7 @@ import time
 
 
 current_datetime = datetime.datetime.now()
-datetime_string = current_datetime.strftime("%Y-%m-%d_%Hh%Mm%Ss")
+datetime_string = current_datetime.strftime("%Y-%m-%d_%H%M%S")
 
 gt_json_filepath = "C:\\Codes\\VCLab\\Data\\GT_json\\test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
 dt_json_filepath = "C:\\Codes\\VCLab\\Data\\DT_json\\results.bbox_08171248.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
