@@ -79,7 +79,6 @@ class coco_dt_json_reader(coco_gt_json_reader):
         for result_dict in self.dt_json_data:
             image_id = result_dict['image_id']
             img_id_to_bbox_dict[image_id].append(dict(islice(result_dict.items(), 1, None)))
-
         return img_id_to_bbox_dict
 
     def convert_bbox_coordinate_to_global(self, resize_scale):

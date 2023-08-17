@@ -263,9 +263,10 @@ class text_xml_reader(xml_reader):
             xmax = int(object.find("bndbox").findtext("xmax"))
             ymin = int(object.find("bndbox").findtext("ymin"))
             ymax = int(object.find("bndbox").findtext("ymax"))
-            string = object.findtext("class")
+            cls = object.findtext("class")
+            string = object.findtext("string")
             orientation = int(math.ceil(float(object.findtext(self.degree_tag)))) # 89.9991이 있음 (예외)
-            self.object_list.append([string, xmin, ymin, xmax, ymax, orientation])
+            self.object_list.append([cls, xmin, ymin, xmax, ymax, orientation, string])
 
     def error_correction(self, img_dir, remove_spacing=True, newline_separation=True,
                          remove_blank_pixel=True, remove_blank_threshold=0.7, margin=5,

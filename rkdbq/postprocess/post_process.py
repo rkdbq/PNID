@@ -4,11 +4,11 @@ from tqdm import tqdm
 from pathlib import Path
 from shapely.geometry import Polygon
 
-model_name = "cfa"
-base_dir = "//Users//rkdbg//Codes//GitHub//PNID//rkdbq//postprocess//"
+model_name = "roi_trans"
+base_dir = "C://Codes//GitHub//PNID//rkdbq//postprocess//"
 symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
 detected_base_dir = base_dir + model_name + "//"
-ground_truth_dir = base_dir + "PNID_DOTA//test//annfiles//"
+ground_truth_dir = base_dir + "PNID_DOTA_before_split//test//annfiles//"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--iou", default="0.5", help="IoU_threshold를 입력하세요.")
@@ -167,9 +167,10 @@ def calculate_rotated_pr(gt_result, dt_result):
     pr_result = {}
 
     for diagram in tqdm(gt_result.keys(), desc="precision and recall calculations"):
-        tp_boxes = compare_gt_and_dt_rotated(gt_result[diagram], dt_result[diagram], IoU_threshold, diagram)
-        gt_boxes = total_bounding_box(gt_result[diagram])
-        dt_boxes = total_bounding_box(dt_result[diagram])
+        # get() 메서드를 사용하여 키에 해당하는 값이 없을 경우 빈 리스트를 반환하도록 함
+        tp_boxes = compare_gt_and_dt_rotated(gt_result.get(diagram, []), dt_result.get(diagram, []), IoU_threshold, diagram)
+        gt_boxes = total_bounding_box(gt_result.get(diagram, []))
+        dt_boxes = total_bounding_box(dt_result.get(diagram, []))
 
         pr_result[diagram] = [dt_boxes, gt_boxes, tp_boxes]
 
@@ -218,7 +219,7 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0, confidence_score_threshol
             dt_mean += dt_total
 
             result_file.write(f"test drawing : {diagram}----------------------------------\n")
-            result_file.write(f"total precision : {tp_total} / {dt_total} = {tp_total / dt_total}\n")
+            result_file.write(f"total precision : {tp_total} / {dt_total} = {tp_total / dt_total if dt_total != 0 else 0}\n")
             result_file.write(f"total recall : {tp_total} / {gt_total} = {tp_total / gt_total}\n")
 
             for key in symbol_dict.keys():
@@ -246,23 +247,23 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0, confidence_score_threshol
 
             result_file.write("\n")
         
-        result_file.write(f"(mean precision, mean recall, mAP) = ({tp_mean / dt_mean}, {tp_mean / gt_mean}, {mAP})")
+        result_file.write(f"(mean precision, mean recall, mAP) = ({tp_mean / dt_mean if dt_mean != 0 else 0}, {tp_mean / gt_mean if gt_mean != 0 else 0}, {mAP})")
         result_file.close()
 
         for cls in total_tp_boxes.keys():
-            pr = {cls: total_tp_boxes[key] / total_dt_boxes[key]}
+            pr = {cls: total_tp_boxes.get(key, 0) / total_dt_boxes.get(key, 1)}
             pr_per_confidence[confidence_score_threshold] = pr
 
 # use
 
-make_detected_file_directory(detected_iou_dir, before_remove)
-convert_class_to_diagram(detected_base_dir, detected_iou_dir, confidence_score_threshold)
+# make_detected_file_directory(detected_iou_dir, before_remove)
+# convert_class_to_diagram(detected_base_dir, detected_iou_dir, confidence_score_threshold)
 
-gt_result = diagram_text_to_dic(ground_truth_dir)
-dt_result = diagram_text_to_dic(detected_iou_dir)
+# gt_result = diagram_text_to_dic(ground_truth_dir)
+# dt_result = diagram_text_to_dic(detected_iou_dir)
 
-pr_result = calculate_rotated_pr(gt_result, dt_result)
+# pr_result = calculate_rotated_pr(gt_result, dt_result)
 
-symbol_dict = symbol_dict_text_to_dic(symbol_dict_dir)
+# symbol_dict = symbol_dict_text_to_dic(symbol_dict_dir)
 
-dump_rotated_pr_result(pr_result, symbol_dict, confidence_score_threshold)
+# dump_rotated_pr_result(pr_result, symbol_dict, confidence_score_threshold)

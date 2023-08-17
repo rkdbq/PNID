@@ -69,11 +69,15 @@ class gt_dt_data():
 
             self.dt_result_raw[image_name].append(
                 {
-                    'bbox': bbox_resized, 'score': dt['score'], 'category_id': dt['category_id']
+                    'bbox': bbox_resized,
+                    'score': dt['score'],
+                    'category_id': dt['category_id'],
+                    'text' : dt['text']
                 }
             )
         self.dt_result = self.score_filter(self.score_threshold)
         self.dt_result_after_nms = self.get_dt_result_nms(self.nms_iou_threshold)
+        print(self.dt_result_after_nms)
 
     def score_filter(self, score_threshold):
         dt_result = {}
@@ -109,6 +113,8 @@ class gt_dt_data():
         for test_image_filename in test_image_filenames:
             symbol_xml = symbol_xml_reader(os.path.join(self.symbol_xml_dir, f"{test_image_filename}.xml"))
             filename, width, height, depth, object_list = symbol_xml.getInfo()
+            for obj_element in object_list:
+                obj_element.append('')
 
             if self.include_text_as_class == True:
                 text_xml_path = os.path.join(self.text_xml_dir, f"{test_image_filename}.xml")
@@ -116,15 +122,16 @@ class gt_dt_data():
                     text_xml = text_xml_reader(text_xml_path)
                     _, _, _, _, text_object_list = text_xml.getInfo()
                     if self.include_text_orientation_as_class == True:
-                        converted_text_object_list = [["text", x[1], x[2], x[3], x[4]] for x in text_object_list if x[5] == 0]
-                        converted_text_object_list += [["text_rotated", x[1], x[2], x[3], x[4]] for x in text_object_list if
+                        converted_text_object_list = [["text", x[1], x[2], x[3], x[4], x[6]] for x in text_object_list if x[5] == 0]
+                        converted_text_object_list += [["text_rotated", x[1], x[2], x[3], x[4], x[6]] for x in text_object_list if
                                                       x[5] == 90]
-                        converted_text_object_list += [["text_rotated_45", x[1], x[2], x[3], x[4]] for x in
+                        converted_text_object_list += [["text_rotated_45", x[1], x[2], x[3], x[4], x[6]] for x in
                                                        text_object_list if
                                                        x[5] == 45]
                     else:
-                        converted_text_object_list = [["text", x[1], x[2], x[3], x[4]] for x in text_object_list]
+                        converted_text_object_list = [["text", x[1], x[2], x[3], x[4], x[6]] for x in text_object_list]
                     object_list = object_list + converted_text_object_list
+                    
 
             image = {
                 "file_name": f"{test_image_filename}.jpg",
@@ -134,11 +141,12 @@ class gt_dt_data():
             }
             images.append(image)
             annotations_per_image = []
-            for object in object_list: # [name, xmin, ymin, xmax, ymax]
+            for object in object_list: # [name, xmin, ymin, xmax, ymax, text]
                 x = object[1]
                 y = object[2]
                 width = object[3] - object[1]
                 height = object[4] - object[2]
+                text = object[5]
 
                 name = object[0].split(sep='-', maxsplit=1)[0]
                 class_index = self.symbol_dict[name]
@@ -149,6 +157,7 @@ class gt_dt_data():
                     "image_id": image_id, 'id': object_id, 'area': width * height, 'segmentation': [],
                     "iscrowd": 0,
                     "ignore": 0,
+                    "text": text
                 }
                 annotations.append(obj)
                 annotations_per_image.append(obj)

@@ -96,13 +96,70 @@ class evaluate():
             dt_to_gt_match_dict[filename] = result_to_gt_index_match_dict
 
         return gt_to_dt_match_dict, dt_to_gt_match_dict
+    
+    def dump_match_recognition_result(self, gt_result, dt_result, gt_to_dt_match_dict, recognition_result, symbol_dict, recognized_only = False):
+        """ Recognition 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
 
-    def dump_pr_and_ap_result(self, pr_result, ap_result_str, symbol_dict, ap_result_only_sym_str=None):
+        Arguments:
+            gt_result (dict): 도면 이름을 key로, box들을 value로 갖는 gt dict
+            dt_result (dict): 도면 이름을 key로, box들을 value로 갖는 dt dict
+            gt_to_dt_match_dict (dict): gt의 심볼 index를 key로, 매칭된 dt의 심볼 index를 value로 갖는 dict
+            recognition_result (dict): 도면 이름을 key로, 각 도면에서의 text recognition 계산에 필요한 정보들(recog_num, gt_text_num)을 저장한 dict
+            symbol_dict (dict): 심볼 이름을 key로, id를 value로 갖는 dict
+        Returns:
+            None
+        """
+
+        outpath = os.path.join(self.output_dir, "test_text_match_result.txt")
+        if recognized_only: outpath = os.path.join(self.output_dir, "test_text_match_result_recognized_only.txt")
+
+        with open(outpath, 'w') as f:
+            mean_recog_ratio = 0
+            mean_recog_ratio_rotated = 0
+            total_gt_text_num = 0
+            total_gt_text_num_rotated = 0
+
+            for filename, gt_values in gt_result.items():
+                f.write(f"test drawing : {filename}----------------------------------\n")
+                recog_values = recognition_result[0][filename]
+                recog_values_rotated = recognition_result[1][filename]
+                f.write(f"total recognition ratio: {recog_values['recognized_num']} / {recog_values['all_gt_text_num']} = {recog_values['recognition']}\n")
+                f.write(f"total recognition ratio (rotated): {recog_values_rotated['recognized_num']} / {recog_values_rotated['all_gt_text_num']} = {recog_values_rotated['recognition']}\n")
+
+                for gt_index, gt_value in enumerate(gt_values):
+                    dt_value = {}
+                    if gt_index in gt_to_dt_match_dict[filename]:
+                       dt_value = dt_result[filename][gt_to_dt_match_dict[filename][gt_index]]
+                    
+                    if gt_value['text'] == '': continue 
+                    if 'bbox' not in dt_value: dt_value['bbox'] = [-1, -1, -1, -1]
+                    if 'text' not in dt_value: dt_value['text'] = '검출 실패'
+                    if dt_value['bbox'] == []: dt_value['bbox'] = [-1, -1, -1, -1]
+                    if dt_value['text'] == '': dt_value['text'] = '텍스트 인식 실패'
+
+                    cls = ''
+                    if gt_value['category_id'] == symbol_dict['text']: cls = 'text'
+                    elif gt_value['category_id'] == symbol_dict['text_rotated']: cls = 'text_rotated'
+                    if(gt_value['text'] == dt_value['text'] or not recognized_only):
+                        f.write(f"{cls}| Detected: {dt_value['bbox']}, '{dt_value['text']}', GT: {gt_value['bbox']}, '{gt_value['text']}'\n")
+
+                mean_recog_ratio += recog_values['recognized_num']
+                total_gt_text_num += recog_values['all_gt_text_num']
+                mean_recog_ratio_rotated += recog_values_rotated['recognized_num']
+                total_gt_text_num_rotated += recog_values_rotated['all_gt_text_num']
+                f.write("\n")
+
+            mean_recog_ratio /= total_gt_text_num
+            mean_recog_ratio_rotated /= total_gt_text_num_rotated
+            f.write(f"(mean recognition ratio, mean recognition ratio (rotated)) = ({mean_recog_ratio}, {mean_recog_ratio_rotated})")
+
+    def dump_pr_and_ap_result(self, pr_result, ap_result_str, recognition_result, symbol_dict, ap_result_only_sym_str=None):
         """ AP와 PR 계산 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
 
         Arguments:
             pr_result (dict): 도면 이름을 key로, 각 도면에서의 PR 계산에 필요한 정보들(detected_num, gt_num 및 클래스별 gt/dt num)을 저장한 dict
             ap_result_str (string): cocoeval의 evaluate summary를 저장한 문자열
+            recognition_result (dict): 도면 이름을 key로, 각 도면에서의 text recognition 계산에 필요한 정보들(recog_num, gt_text_num)을 저장한 dict
             symbol_dict (dict): 심볼 이름을 key로, id를 value로 갖는 dict
             ap_result_only_sym_str (string)_: text class를 제외하고 계산된 cocoeval의 evaluate summary를 저장한 문자열, None인 경우는 text class가 추가되지 않았다고 생각함
         Returns:
@@ -113,6 +170,10 @@ class evaluate():
         with open(outpath, 'w') as f:
             mean_precision = 0
             mean_recall = 0
+            mean_recog_ratio = 0
+            mean_recog_ratio_rotated = 0
+            total_gt_text_num = 0
+            total_gt_text_num_rotated = 0
 
             if write_only_sym_reslt:
                 text_classes_list = []
@@ -129,8 +190,18 @@ class evaluate():
                 f.write(f"test drawing : {filename}----------------------------------\n")
                 f.write(f"total precision : {values['detected_num']} / {values['all_prediction_num']} = {values['precision']}\n")
                 f.write(f"total recall : {values['detected_num']} / {values['all_gt_num']} = {values['recall']}\n")
+
+                recog_values = recognition_result[0][filename]
+                recog_values_rotated = recognition_result[1][filename]
+                f.write(f"total recognition ratio: {recog_values['recognized_num']} / {recog_values['all_gt_text_num']} = {recog_values['recognition']}\n")
+                f.write(f"total recognition ratio (rotated): {recog_values_rotated['recognized_num']} / {recog_values_rotated['all_gt_text_num']} = {recog_values_rotated['recognition']}\n")
+
                 mean_precision += values['precision']
                 mean_recall += values['recall']
+                mean_recog_ratio += recog_values['recognized_num']
+                mean_recog_ratio_rotated += recog_values_rotated['recognized_num']
+                total_gt_text_num += recog_values['all_gt_text_num']
+                total_gt_text_num_rotated += recog_values_rotated['all_gt_text_num']
 
                 if write_only_sym_reslt:
                     only_sym_detected_num = values['detected_num']
@@ -180,6 +251,8 @@ class evaluate():
 
             mean_precision /= len(pr_result.keys())
             mean_recall /= len(pr_result.keys())
+            mean_recog_ratio /= total_gt_text_num
+            mean_recog_ratio_rotated /= total_gt_text_num_rotated
 
             ap_strs = ap_result_str.splitlines()[0].split(" ")
             ap = float(ap_strs[len(ap_strs)-1])
@@ -188,7 +261,7 @@ class evaluate():
             ap_75_strs = ap_result_str.splitlines()[2].split(" ")
             ap_75 = float(ap_75_strs[len(ap_75_strs) - 1])
 
-            f.write(f"(mean precision, mean recall, ap, ap50, ap75) = ({mean_precision}, {mean_recall}, {ap}, {ap_50}, {ap_75})")
+            f.write(f"(mean precision, mean recall, mean recognition ratio, mean recognition ratio (rotated) ap, ap50, ap75) = ({mean_precision}, {mean_recall}, {mean_recog_ratio}, {mean_recog_ratio_rotated}, {ap}, {ap_50}, {ap_75})")
 
     def calculate_ap(self, gt_result_json, dt_result, ignore_class_list=None):
         """ COCOeval을 사용한 AP계산. 중간 과정으로 gt와 dt에 대한 json파일이 out_dir에 생성됨
@@ -295,6 +368,37 @@ class evaluate():
                                     }
 
         return pr_result
+    
+    def calculate_recognition(self, gt_result, dt_result, gt_to_dt_match_dict, text_symbol_num):
+        """ 전체 test 도면에 대한 recognition 계산
+
+        Arguments:
+            gt_result (dict): 도면 이름을 key로, box들을 value로 갖는 gt dict
+            dt_result (dict): 도면 이름을 key로, box들을 value로 갖는 dt dict
+            gt_to_dt_match_dict (dict): gt 심볼과 dt 심볼간 매칭 계산 결과 dict
+
+        Returns:
+            pr_result (dict): 도면 이름을 key로, recognition 계산에 필요한 데이터를 value로 갖는 dict
+        """
+
+        recognition_result = {}
+        recognition_result_rotated = {}
+
+        for filename, gt_to_dt_match in gt_to_dt_match_dict.items():
+            recog_count = 0
+            gt_text_count = 0
+            for gt_id, dt_id in gt_to_dt_match.items():
+                if gt_result[filename][gt_id]['category_id'] != text_symbol_num: continue
+                if dt_result[filename][dt_id]['category_id'] != text_symbol_num: continue
+                if gt_result[filename][gt_id]['text'] == '': continue
+                if gt_result[filename][gt_id]['text'] == dt_result[filename][dt_id]['text']: recog_count += 1
+
+            for gt_value in gt_result[filename]:
+                if gt_value['category_id'] == text_symbol_num and gt_value['text'] != '': gt_text_count += 1 
+            
+            recognition_result[filename] = {"all_gt_text_num" : gt_text_count, "recognized_num" : recog_count, "recognition" : recog_count / gt_text_count}
+
+        return recognition_result
 
     def get_gt_img_id_from_filename(self, filename, gt_result_json):
         """ filename을 입력으로 img_id를 반환하는 함수
