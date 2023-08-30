@@ -52,7 +52,6 @@ def cal_iou(gt_points: dict, dt_points: dict):
     coords = [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax),]
     dt_rect = Polygon(coords)
 
-    iou = 0
     intersection = gt_rect.intersection(dt_rect).area
     union = gt_rect.union(dt_rect).area
     iou = intersection / union
@@ -69,7 +68,7 @@ def evaluate(gt_dict: dict, dt_dict: dict, iou_thr: float = 0.8):
             print(f'{diagram} is skipped. (NOT exist in detection xmls path)\n')
             continue
         
-        # Counting tp, dt, gt
+        # Counting tp, dt, gt for each classes
         tp = {}
         dt = {}
         gt = {}
