@@ -16,7 +16,7 @@ current_datetime = datetime.datetime.now()
 datetime_string = current_datetime.strftime("%Y-%m-%d_%H%M%S")
 
 gt_json_filepath = "C:\\Codes\\VCLab\\Data\\GT_json\\test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
-dt_json_filepath = "C:\\Codes\\VCLab\\Data\\DT_json\\results.bbox_08171248.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
+dt_json_filepath = "C:\\Codes\\VCLab\\Data\\DT_json\\results.bbox_rec_lossx10.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
 output_dir = f"C:\\Codes\\VCLab\\Experiments\\Recognitions\\{datetime_string}\\"  # 출력 파일들이 저장될 폴더
 
 data_root = 'C:\\Codes\\VCLab\\Data\\PNID_RAW\\'

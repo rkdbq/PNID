@@ -4,11 +4,14 @@ from tqdm import tqdm
 from pathlib import Path
 from shapely.geometry import Polygon
 
-model_name = "roi_trans"
-base_dir = "C://Codes//GitHub//PNID//rkdbq//postprocess//"
-symbol_dict_dir = base_dir + "SymbolClass_Class.txt"
-detected_base_dir = base_dir + model_name + "//"
-ground_truth_dir = base_dir + "PNID_DOTA_before_split//test//annfiles//"
+model_name = "roi_trans_with_angle_123"
+
+# base_dir = "C:\\Codes\\GitHub\\PNID\\rkdbq\\postprocess\\"
+symbol_dict_dir = "C:\\Codes\\GitHub\\PNID\\rkdbq\\postprocess\\SymbolClass_Class.txt"
+
+detected_base_dir = f"D:\\Experiments\\mmrotate\\{model_name}\\"
+ground_truth_dir = "D:\\Data\\PNID_DOTA_before_split\\test\\annfiles_123\\"
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--iou", default="0.5", help="IoU_threshold를 입력하세요.")
@@ -21,8 +24,8 @@ before_remove = True
 is_total = True
 if args.total == "False" or args.total == "false": is_total = False
 
-remove_iou_path = detected_base_dir + f"iou{int(IoU_threshold*100)}//"
-detected_iou_dir = detected_base_dir + f"iou{int(IoU_threshold*100)}//test//annfiles//"
+# remove_iou_path = detected_base_dir + f"iou{int(IoU_threshold*100)}\\"
+detected_dir = f"D:\\Experiments\\Detections\\Diagrams\\{model_name}"
 
 pr_per_confidence = {} # {confidence score threshold, {class, precision}}
 
@@ -33,8 +36,8 @@ def get_filenames(dirname):
 def make_detected_file_directory(dir, init):
     """ 클래스 별 분류된 텍스트 파일을 도면 별 분류된 텍스트 파일로 변환하여 저장할 경로 생성
     """
-    if init:
-        remove_directory(remove_iou_path)
+    # if init:
+    #     remove_directory(remove_iou_path)
     Path(dir).mkdir(parents=True, exist_ok=True)
 
 def remove_directory(directory_path):
@@ -47,10 +50,11 @@ def remove_directory(directory_path):
 def add_line_to_diagram(line, diagram_dir, class_name, confidence_score_threshold):
     info = line.split()
     points = [round(float(i)) for i in info[2:10]]
+    angle = str(float(info[10]))
     confidence_score = info[1]
     if float(confidence_score) < confidence_score_threshold: return
     annfile = open(diagram_dir + info[0] + ".txt", "a")
-    annfile.write(" ".join(map(str, points)) + " " + class_name + "\n")
+    annfile.write(" ".join(map(str, points)) + " " + angle + " " + class_name + "\n")
     annfile.close()
 
 def convert_class_to_diagram(files_dir, diagram_dir, confidence_score_threshold):
@@ -91,7 +95,7 @@ def compare_gt_and_dt_rotated(gt, dt, iou_threshold, diagram):
             dt_class = dt_value[8]
             if gt_class != dt_class: continue
             if calculate_IoU(gt_points, dt_points) > iou_threshold:
-                annfile = open(f"{detected_iou_dir}{diagram}.txt", "a")
+                annfile = open(f"{detected_dir}{diagram}.txt", "a")
                 annfile.write(f"{dt_value[0]} {dt_value[1]} {dt_value[2]} {dt_value[3]} {dt_value[4]} {dt_value[5]} {dt_value[6]} {dt_value[7]} {dt_value[8]}\n")
                 annfile.close()
                 if gt_class in matched:
@@ -193,9 +197,9 @@ def dump_rotated_pr_result(pr_result, symbol_dict = 0, confidence_score_threshol
         ap_mean = 0
 
         if is_total:
-            result_file = open(f"{base_dir}{model_name}_iou{int(IoU_threshold*100)}_result.txt", "a")
+            result_file = open(f"{detected_dir}_result.txt", "a")
         else:
-            result_file = open(f"{base_dir}{model_name}_iou{int(IoU_threshold*100)}_123_result.txt", "a")
+            result_file = open(f"{detected_dir}_123_result.txt", "a")
         
         result_file.write(f"Model : {model_name}\n")
         result_file.write(f"IoU threshold : {IoU_threshold}\n")
