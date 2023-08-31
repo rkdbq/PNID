@@ -8,10 +8,11 @@ def diff_dict(remain: dict, remove: dict):
     """ remain 딕셔너리 중 remove 딕셔너리와 중복되는 키를 가지는 쌍을 삭제
     
     """
-    for key in remove.keys():
-        if key in remain:
-            remain.pop(key)
-    return remain
+    diff = {}
+    for key in remain.keys():
+        if key not in remove:
+            diff[key] = remain[key]
+    return diff
 
 def txt2dict(txt_path: str, split_word: str = '|'):
     """ txt 파일을 딕셔너리로 파싱
@@ -146,11 +147,15 @@ def evaluate(gt_dict: dict, dt_dict: dict, symbol_dict: dict, iou_thr: float = 0
 
         # Mapping precision
         for cls, cnt in tp.items():
+            if cls not in symbol_dict: 
+                continue
             if cls not in precision[diagram]:
                 precision[diagram][cls] = {}
             precision[diagram][cls]['tp'] = cnt
             precision[diagram]['total']['tp'] += cnt
         for cls, cnt in dt.items():
+            if cls not in symbol_dict:
+                continue
             if cls not in precision[diagram]:
                 precision[diagram][cls] = {}
             precision[diagram][cls]['dt'] = cnt
@@ -158,11 +163,15 @@ def evaluate(gt_dict: dict, dt_dict: dict, symbol_dict: dict, iou_thr: float = 0
 
         # Mapping recall
         for cls, cnt in tp.items():
+            if cls not in symbol_dict:
+                continue
             if cls not in recall[diagram]:
                 recall[diagram][cls] = {}
             recall[diagram][cls]['tp'] = cnt   
             recall[diagram]['total']['tp'] += cnt
         for cls, cnt in gt.items():
+            if cls not in symbol_dict:
+                continue
             if cls not in recall[diagram]:
                 recall[diagram][cls] = {}
             recall[diagram][cls]['gt'] = cnt
@@ -183,7 +192,7 @@ def dump(dump_path: str, gt_dict: dict, dt_dict: dict, symbol_dict: dict, symbol
     
     """
     symbol_dict = symbol_dict[symbol_type]
-    precision, recall = evaluate(gt_dict, dt_dict)
+    precision, recall = evaluate(gt_dict, dt_dict, symbol_dict)
 
     mean = {}
     mean['tp'] = 0
@@ -191,7 +200,7 @@ def dump(dump_path: str, gt_dict: dict, dt_dict: dict, symbol_dict: dict, symbol
     mean['gt'] = 0
 
     Path(dump_path).mkdir(parents=True, exist_ok=True)
-    result_file = open(f"{dump_path}\\result.txt", 'a')
+    result_file = open(f"{dump_path}\\result{symbol_type}.txt", 'a')
     result_file.write(f"Symbol Type: {symbol_type}\n")
     
     for diagram in gt_dict.keys():
@@ -213,11 +222,11 @@ def dump(dump_path: str, gt_dict: dict, dt_dict: dict, symbol_dict: dict, symbol
         mean['dt'] += dt
         mean['gt'] += gt
 
-        for key, value in symbol_dict.items():
-            if value in recall[diagram]:
-                tp = recall[diagram][value]['tp']
-                gt = recall[diagram][value]['gt']
-                result_file.write(f"class {key} (['{value}']): {tp} / {gt}\n")
+        for cls, num in symbol_dict.items():
+            if cls in recall[diagram]:
+                tp = recall[diagram][cls]['tp']
+                gt = recall[diagram][cls]['gt']
+                result_file.write(f"class {num} (['{cls}']): {tp} / {gt}\n")
         
         result_file.write(f'\n')
 
@@ -233,7 +242,7 @@ def dump(dump_path: str, gt_dict: dict, dt_dict: dict, symbol_dict: dict, symbol
 gt_xmls = 'D:\\Data\\xml2eval\\GT_xmls'
 dt_xmls = 'D:\\Data\\xml2eval\\DT_xmls'
 symbol_txt = 'D:\\Data\\SymbolClass_Class.txt'
-large_symbol_txt = 'D:\\Data\\SymbolClass_Class_Large.txt' # 텍스트 파일 작성 필요
+large_symbol_txt = 'D:\\Data\\SymbolClass_Class_big.txt'
 dump_path = 'D:\\Experiments\\Detections'
 
 gt_dict = xmls2dict(gt_xmls)
@@ -244,4 +253,4 @@ symbol_dict['total'] = txt2dict(symbol_txt)
 symbol_dict['large'] = txt2dict(large_symbol_txt)
 symbol_dict['small'] = diff_dict(symbol_dict['total'], symbol_dict['large'])
 
-dump(dump_path, gt_dict, dt_dict, symbol_dict, symbol_type='small')
+dump(dump_path, gt_dict, dt_dict, symbol_dict, symbol_type='large')
