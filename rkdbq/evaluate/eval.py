@@ -1,6 +1,8 @@
 import os
 import xml.etree.ElementTree as ET
 from shapely import Polygon
+from pathlib import Path
+from tqdm import tqdm
 
 def txt2dict(txt_path: str, split_word: str = '|'):
     """ txt 파일을 딕셔너리로 파싱
@@ -89,8 +91,7 @@ def evaluate(gt_dict: dict, dt_dict: dict, iou_thr: float = 0.8):
     """
     precision = {}
     recall = {}
-
-    for diagram in gt_dict.keys():
+    for diagram in tqdm(gt_dict.keys(), f"Evaluate {diagram}"):
         precision[diagram] = {}
         recall[diagram] = {}
         precision[diagram]['total'] = {}
@@ -172,6 +173,7 @@ def dump(dump_path: str, gt_xmls_path: str, symbol_dict: dict, precision: dict, 
     mean['dt'] = 0
     mean['gt'] = 0
 
+    Path(dump_path).mkdir(parents=True, exist_ok=True)
     result_file = open(f"{dump_path}\\result.txt", 'a')
     result_file.write(f"Symbol Type: {symbol}\n")
     
