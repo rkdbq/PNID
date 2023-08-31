@@ -1,13 +1,24 @@
-# 각 도면(xml)의 precision, recall 계산
-# 전체 도면(xml)에 대한 precision, recall 계산
-# 계산 시 모든 심볼/작은 심볼/큰 심볼 선택 가능하여야 함
-# 계산 결과를 텍스트로 출력 
-
 import os
 import xml.etree.ElementTree as ET
 from shapely import Polygon
 
+def txt2dict(txt_path: str, split_word: str = '|'):
+    """ txt 파일을 딕셔너리로 파싱
+    
+    """
+    result = {}
+    file = open(txt_path, 'r')
+    for line in file:
+        words = line.split(split_word)
+        num = words[0]
+        cls = words[1].replace('\n', '')
+        result[num] = cls
+    return result
+
 def xml2dict(element):
+    """ xml 파일을 딕셔너리로 파싱
+    
+    """
     result = {}
     for child in element:
         child_data = xml2dict(child)
@@ -24,6 +35,9 @@ def xml2dict(element):
     return result
 
 def xmls2dict(xml_dir_path: str):
+    """ xml 파일들을 딕셔너리로 파싱
+    
+    """
     result = {}
     for root, dirs, files in os.walk(xml_dir_path):
         for filename in files:
@@ -38,6 +52,9 @@ def xmls2dict(xml_dir_path: str):
     return result
 
 def cal_iou(gt_points: dict, dt_points: dict):
+    """ IoU 계산 (바운딩 박스가 회전되어 있으므로 shapely.Polygon 사용)
+
+    """
     xmin = float(gt_points['xmin'])
     xmax = float(gt_points['xmax'])
     ymin = float(gt_points['ymin'])
@@ -58,6 +75,18 @@ def cal_iou(gt_points: dict, dt_points: dict):
     return iou
 
 def evaluate(gt_dict: dict, dt_dict: dict, iou_thr: float = 0.8):
+    """ Precision, Recall 계산에 필요한 TP, DT, GT 카운팅
+    
+    Arguments:
+        gt_dict: GT xml로부터 파싱된 딕셔너리
+        dt_dict: DT xml로부터 파싱된 딕셔너리
+        iou_thr: IoU Threshold
+
+    Returns:
+        precision: {도면 이름: {클래스 이름: {tp, dt}}, ..., total: {tp, dt}}}}
+        recall: {도면 이름: {클래스 이름: {tp, gt}}, ..., total: {tp, gt}}}} 
+    
+    """
     precision = {}
     recall = {}
 
@@ -124,29 +153,62 @@ def evaluate(gt_dict: dict, dt_dict: dict, iou_thr: float = 0.8):
             
     return precision, recall
 
-def dump(path: str, gt_xmls_path: str, precision: dict, recall: dict, recognition: dict = {}, symbol: str = 'total'):
-    """
-    symbol(text) is 'total', 'small' or 'large'
+def dump(dump_path: str, gt_xmls_path: str, symbol_dict: dict, precision: dict, recall: dict, recognition: dict = {}, symbol: str = 'total'):
+    """ Precision, Recall을 계산하여 txt 파일로 출력
+    
+    Arguments:
+        symbol(text)은 'total', 'small' 또는 'large' 중 해당되는 symbol에 대해 dump 수행
 
-    precision(dict): {도면 이름: {클래스 이름: {tp, dt}}, ... total: {tp, dt}}}, ..., mean: sum(tp) / sum(dt)}
-    recall(dict): {도면 이름: {클래스 이름: {tp, gt}}, ... total: {tp, gt}}}, ..., mean: sum(tp) / sum(gt)}
-    recognition(dict): {도면 이름: {tp, dt}, ..., mean: {sum(tp), sum(dt)}}
-    """
+        dump_path: result.txt를 저장할 경로
+        gt_xmls_path: GT 도면 xml의 경로 (도면 이름을 얻기 위함)
 
-    result_file = open(f'{path}\\result.txt', 'a')
-    result_file.write(f'Symbol Type: {symbol}\n')
+        precision: {도면 이름: {클래스 이름: {tp, dt}}, ..., total: {tp, dt}}}}
+        recall: {도면 이름: {클래스 이름: {tp, gt}}, ..., total: {tp, gt}}}}
+        recognition: {도면 이름: {tp, dt}, ..., total: {tp, gt}}?
+    
+    """
+    mean = {}
+    mean['tp'] = 0
+    mean['dt'] = 0
+    mean['gt'] = 0
+
+    # result_file = open(f"{dump_path}\\result.txt", 'a')
+    result_file = open(f"{dump_path}/result.txt", 'a')
+    result_file.write(f"Symbol Type: {symbol}\n")
     
     for root, dirs, files in os.walk(gt_xmls_path):
         for filename in files:
             if filename.endswith('.xml'):
                 diagram = filename[0:22]
-                result_file.write(f'\n')
+                result_file.write(f"\n")
+
                 result_file.write(f'test drawing: {diagram}----------------------------------\n')
+
                 tp = precision[diagram]['total']['tp']
                 dt = precision[diagram]['total']['dt']
-                result_file.write(f"total precision: {tp}/{dt} = {tp / dt if dt != 0 else 0}\n")
+                pr = tp / dt if dt != 0 else 0
+                result_file.write(f"total precision: {tp} / {dt} = {pr}\n")
+
+                tp = recall[diagram]['total']['tp']
+                gt = recall[diagram]['total']['gt']
+                rc = tp / gt if gt != 0 else 0
+                result_file.write(f"total recall : {tp} / {gt} = {rc}\n")
+
+                mean['tp'] += tp
+                mean['dt'] += dt
+                mean['gt'] += gt
+
+                for key, value in symbol_dict.items():
+                    if value in recall[diagram]:
+                        tp = recall[diagram][value]['tp']
+                        gt = recall[diagram][value]['gt']
+                        result_file.write(f"class {key} (['{value}']): {tp} / {gt}\n")
                 
                 result_file.write(f'\n')
+
+    mean['precision'] = mean['tp'] / mean['dt'] if mean['dt'] != 0 else 0
+    mean['recall'] = mean['tp'] / mean['gt'] if mean['gt'] != 0 else 0
+    result_file.write(f"(mean precision, mean recall) = ({mean['precision']}, {mean['recall']})")
 
     result_file.close()
     return
@@ -155,11 +217,13 @@ def dump(path: str, gt_xmls_path: str, precision: dict, recall: dict, recognitio
 
 gt_xmls = 'D:\\Data\\xml2eval\\GT_xmls\\'
 dt_xmls = 'D:\\Data\\xml2eval\\DT_xmls\\'
+symbol_txt = 'D:\\Data\\SymbolClass_Class.txt'
 dump_path = 'D:\\Experiments\\Detections\\'
 
 gt_dict = xmls2dict(gt_xmls)
 dt_dict = xmls2dict(dt_xmls)
+symbol_dict = txt2dict(symbol_txt)
 
 precision, recall = evaluate(gt_dict, dt_dict)
 
-dump(dump_path, gt_xmls, precision, recall)
+dump(dump_path, gt_xmls, symbol_dict, precision, recall) # symbol 종류에 따라 해당되는 symbol에 대해서만 dump 수행 가능해야 함
