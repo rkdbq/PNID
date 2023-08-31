@@ -27,14 +27,14 @@ def xmls2dict(xml_dir_path: str):
     result = {}
     for root, dirs, files in os.walk(xml_dir_path):
         for filename in files:
-            if filename.endswith(".xml"):
+            if filename.endswith('.xml'):
                 file_path = os.path.join(root, filename)
                 try:
                     tree = ET.parse(file_path)
                     root_element = tree.getroot()
                     result[filename[0:22]] = xml2dict(root_element)['symbol_object']
                 except ET.ParseError as e:
-                    print(f"Error parsing {file_path}: {e}")
+                    print(f'Error parsing {file_path}: {e}')
     return result
 
 def cal_iou(gt_points: dict, dt_points: dict):
@@ -64,6 +64,12 @@ def evaluate(gt_dict: dict, dt_dict: dict, iou_thr: float = 0.8):
     for diagram in gt_dict.keys():
         precision[diagram] = {}
         recall[diagram] = {}
+        precision[diagram]['total'] = {}
+        recall[diagram]['total'] = {}
+        precision[diagram]['total']['tp'] = 0
+        precision[diagram]['total']['dt'] = 0
+        recall[diagram]['total']['tp'] = 0
+        recall[diagram]['total']['gt'] = 0
         if diagram not in dt_dict: 
             print(f'{diagram} is skipped. (NOT exist in detection xmls path)\n')
             continue
@@ -97,24 +103,28 @@ def evaluate(gt_dict: dict, dt_dict: dict, iou_thr: float = 0.8):
             if cls not in precision[diagram]:
                 precision[diagram][cls] = {}
             precision[diagram][cls]['tp'] = cnt
+            precision[diagram]['total']['tp'] += cnt
         for cls, cnt in dt.items():
             if cls not in precision[diagram]:
                 precision[diagram][cls] = {}
             precision[diagram][cls]['dt'] = cnt
+            precision[diagram]['total']['dt'] += cnt
 
         # Mapping recall
         for cls, cnt in tp.items():
             if cls not in recall[diagram]:
                 recall[diagram][cls] = {}
             recall[diagram][cls]['tp'] = cnt   
+            recall[diagram]['total']['tp'] += cnt
         for cls, cnt in gt.items():
             if cls not in recall[diagram]:
                 recall[diagram][cls] = {}
             recall[diagram][cls]['gt'] = cnt
+            recall[diagram]['total']['gt'] += cnt
             
     return precision, recall
 
-def dump(precision: dict, recall: dict, recognition: dict = {}, symbol: str = 'total'):
+def dump(path: str, gt_xmls_path: str, precision: dict, recall: dict, recognition: dict = {}, symbol: str = 'total'):
     """
     symbol(text) is 'total', 'small' or 'large'
 
@@ -122,16 +132,34 @@ def dump(precision: dict, recall: dict, recognition: dict = {}, symbol: str = 't
     recall(dict): {도면 이름: {클래스 이름: {tp, gt}}, ... total: {tp, gt}}}, ..., mean: sum(tp) / sum(gt)}
     recognition(dict): {도면 이름: {tp, dt}, ..., mean: {sum(tp), sum(dt)}}
     """
+
+    result_file = open(f'{path}\\result.txt', 'a')
+    result_file.write(f'Symbol Type: {symbol}\n')
+    
+    for root, dirs, files in os.walk(gt_xmls_path):
+        for filename in files:
+            if filename.endswith('.xml'):
+                diagram = filename[0:22]
+                result_file.write(f'\n')
+                result_file.write(f'test drawing: {diagram}----------------------------------\n')
+                tp = precision[diagram]['total']['tp']
+                dt = precision[diagram]['total']['dt']
+                result_file.write(f"total precision: {tp}/{dt} = {tp / dt if dt != 0 else 0}\n")
+                
+                result_file.write(f'\n')
+
+    result_file.close()
     return
 
 # pipeline
 
-gt_xmls = "D:\\Data\\xml2eval\\GT_xmls\\"
-dt_xmls = "D:\\Data\\xml2eval\\DT_xmls\\"
+gt_xmls = 'D:\\Data\\xml2eval\\GT_xmls\\'
+dt_xmls = 'D:\\Data\\xml2eval\\DT_xmls\\'
+dump_path = 'D:\\Experiments\\Detections\\'
 
 gt_dict = xmls2dict(gt_xmls)
 dt_dict = xmls2dict(dt_xmls)
 
 precision, recall = evaluate(gt_dict, dt_dict)
 
-# dump(precision, recall)
+dump(dump_path, gt_xmls, precision, recall)
