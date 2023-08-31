@@ -172,8 +172,7 @@ def dump(dump_path: str, gt_xmls_path: str, symbol_dict: dict, precision: dict, 
     mean['dt'] = 0
     mean['gt'] = 0
 
-    # result_file = open(f"{dump_path}\\result.txt", 'a')
-    result_file = open(f"{dump_path}/result.txt", 'a')
+    result_file = open(f"{dump_path}\\result.txt", 'a')
     result_file.write(f"Symbol Type: {symbol}\n")
     
     for root, dirs, files in os.walk(gt_xmls_path):
@@ -215,10 +214,10 @@ def dump(dump_path: str, gt_xmls_path: str, symbol_dict: dict, precision: dict, 
 
 # pipeline
 
-gt_xmls = 'D:\\Data\\xml2eval\\GT_xmls\\'
-dt_xmls = 'D:\\Data\\xml2eval\\DT_xmls\\'
+gt_xmls = 'D:\\Data\\xml2eval\\GT_xmls'
+dt_xmls = 'D:\\Data\\xml2eval\\DT_xmls'
 symbol_txt = 'D:\\Data\\SymbolClass_Class.txt'
-dump_path = 'D:\\Experiments\\Detections\\'
+dump_path = 'D:\\Experiments\\Detections'
 
 gt_dict = xmls2dict(gt_xmls)
 dt_dict = xmls2dict(dt_xmls)
