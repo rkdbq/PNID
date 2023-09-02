@@ -2,7 +2,7 @@ from Visualize.test_result_visualize import draw_test_results_to_img
 from Predict_Postprocess.gt_dt_data import gt_dt_data
 from Predict_Postprocess.evaluate import evaluate
 from Common.pnid_xml import write_symbol_result_to_xml, write_text_result_to_xml
-from Predict_Postprocess.text_recognition.recognize_text import get_text_detection_result, recognize_text_using_tess
+# from Predict_Postprocess.text_recognition.recognize_text import get_text_detection_result, recognize_text_using_tess
 from Common.symbol_io import read_symbol_type_txt
 from pathlib import Path
 import shutil
@@ -25,6 +25,17 @@ symbol_xml_dir = data_root +"SymbolXML"  # 원본 도면 이미지와 함께 제
 text_xml_dir = data_root +"TextXML"  # 원본 도면 이미지와 함께 제공된 Text XML 폴더
 symbol_filepath = data_root +"Hyundai_SymbolClass_Sym_Only.txt"  # (방향 제거된) symbol index txt 파일 경로
 symbol_type_filepath = data_root +"Hyundai_SymbolClass_Type.txt"  # 심볼이름-타입 매칭 txt
+
+# gt_json_filepath = "/Users/rkdbg/Codes/VCLab/Data/json/gt_json/test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
+# dt_json_filepath = "/Users/rkdbg/Codes/VCLab/Data/json/dt_json/results.bbox_wr.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
+# output_dir = f"/Users/rkdbg/Codes/VCLab/Experiments/Recognitions/{datetime_string}"  # 출력 파일들이 저장될 폴더
+
+# data_root = '/Users/rkdbg/Codes/VCLab/Data/data/'
+# drawing_dir = data_root + "Drawing/JPG/"  # 원본 도면 이미지 폴더
+# symbol_xml_dir = data_root +"SymbolXML"  # 원본 도면 이미지와 함께 제공된 Symbol XML 폴더
+# text_xml_dir = data_root +"TextXML"  # 원본 도면 이미지와 함께 제공된 Text XML 폴더
+# symbol_filepath = data_root +"Hyundai_SymbolClass_Sym_Only.txt"  # (방향 제거된) symbol index txt 파일 경로
+# symbol_type_filepath = data_root +"Hyundai_SymbolClass_Type.txt"  # 심볼이름-타입 매칭 txt
 
 include_text_as_class = True
 include_text_orientation_as_class = True
@@ -80,6 +91,7 @@ recog_results = [recog_result, recog_result_rotated]
 eval.dump_pr_and_ap_result(pr_result, ap_result_str, recog_results, gt_dt_result.symbol_dict)
 eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_results, gt_dt_result.symbol_dict)
 eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_results, gt_dt_result.symbol_dict, recognized_only=True)
+eval.label_cropped_image(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, gt_dt_result.symbol_dict, drawing_dir)
 
 # # --- (include_text_as_class == True 인 경우) Text recognition 수행 (오래걸림)
 # if include_text_as_class == True:
