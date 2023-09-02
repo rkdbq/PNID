@@ -1,7 +1,10 @@
 import os, sys, io
 import numpy as np
+import cv2 as cv
 from collections import defaultdict
 from pycocotools import coco, cocoeval
+from pathlib import Path
+
 
 from Common.coco_json import coco_json_write
 
@@ -97,6 +100,68 @@ class evaluate():
 
         return gt_to_dt_match_dict, dt_to_gt_match_dict
     
+    def label_cropped_image(self, gt_result, dt_result, gt_to_dt_match_dict, symbol_dict, imgs_path):
+        """ Recognition 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
+
+        Arguments:
+            gt_result (dict): 도면 이름을 key로, box들을 value로 갖는 gt dict
+            dt_result (dict): 도면 이름을 key로, box들을 value로 갖는 dt dict
+            gt_to_dt_match_dict (dict): gt의 심볼 index를 key로, 매칭된 dt의 심볼 index를 value로 갖는 dict
+            recognition_result (dict): 도면 이름을 key로, 각 도면에서의 text recognition 계산에 필요한 정보들(recog_num, gt_text_num)을 저장한 dict
+            symbol_dict (dict): 심볼 이름을 key로, id를 value로 갖는 dict
+        Returns:
+            None
+        """
+
+        for filename, gt_values in gt_result.items():
+            img_path = f"{imgs_path}{filename}.jpg"
+            if not os.path.exists(img_path): continue
+            print(f"{imgs_path}{filename}.jpg")
+
+            Path(f"{self.output_dir}/tp_cropped/{filename}").mkdir(parents=True, exist_ok=True)
+            Path(f"{self.output_dir}/dt_only_cropped/{filename}").mkdir(parents=True, exist_ok=True)
+
+            diagram_img = cv.imread(img_path)
+
+            for gt_index, gt_value in enumerate(gt_values):
+                dt_value = {}
+                if gt_index in gt_to_dt_match_dict[filename]:
+                    dt_value = dt_result[filename][gt_to_dt_match_dict[filename][gt_index]]
+                
+                if 'category_id' not in gt_value: continue
+                if 'category_id' not in dt_value: continue
+                if gt_value['category_id'] != (symbol_dict['text'] or symbol_dict['text']): continue
+                if dt_value['category_id'] != (symbol_dict['text'] or symbol_dict['text']): continue
+
+                if gt_value['text'] == '': continue 
+                if 'bbox' not in dt_value: dt_value['bbox'] = [-1, -1, -1, -1]
+                if 'text' not in dt_value: dt_value['text'] = '검출 실패'
+                if dt_value['bbox'] == []: dt_value['bbox'] = [-1, -1, -1, -1]
+                if dt_value['text'] == '': dt_value['text'] = '텍스트 인식 실패'
+
+                if(gt_value['text'] == dt_value['text']): # recog 성공
+                    dt_pos = dt_value['bbox']
+                    cropped = diagram_img[dt_pos[1]:dt_pos[1]+dt_pos[3], dt_pos[0]:dt_pos[0]+dt_pos[2]]
+                    jpg_name = str.replace(dt_value['text'], '/', '$')
+                    write_path = f"{self.output_dir}/tp_cropped/{filename}/{jpg_name}.jpg"
+                    idx = 1
+                    while True:
+                        if not os.path.exists(write_path): break
+                        write_path = f"{self.output_dir}/tp_cropped/{filename}/{jpg_name}({idx}).jpg"
+                        idx += 1
+                    cv.imwrite(write_path, cropped)
+                else: # dt 성공, recog 실패
+                    dt_pos = dt_value['bbox']
+                    cropped = diagram_img[dt_pos[1]:dt_pos[1]+dt_pos[3], dt_pos[0]:dt_pos[0]+dt_pos[2]]
+                    jpg_name = str.replace(dt_value['text'], '/', '$')
+                    write_path = f"{self.output_dir}/dt_only_cropped/{filename}/{jpg_name}.jpg"
+                    idx = 1
+                    while True:
+                        if not os.path.exists(write_path): break
+                        write_path = f"{self.output_dir}/dt_only_cropped/{filename}/{jpg_name}({idx}).jpg"
+                        idx += 1
+                    cv.imwrite(write_path, cropped)
+
     def dump_match_recognition_result(self, gt_result, dt_result, gt_to_dt_match_dict, recognition_result, symbol_dict, recognized_only = False):
         """ Recognition 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
 
