@@ -73,7 +73,7 @@ class text_merge():
             result[diagram] = self.__cmp_iof(ann)
         return result
     
-    def write(self, write_path: str):
+    def write_ann(self, write_path: str):
         Path(write_path).mkdir(parents=True, exist_ok=True)
 
         remain_anns = self.__merge(self.annfiles_path)
@@ -91,4 +91,4 @@ class text_merge():
 ann_dir_path = "D:\\Data\\PNID_DOTA_before_split\\test\\annfiles_123"
 write_path = "D:\\Experiments\\Text_Merge"
 
-merge = text_merge(ann_dir_path).write(write_path)
+merge = text_merge(ann_dir_path).write_ann(write_path)
