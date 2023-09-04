@@ -214,7 +214,7 @@ class evaluate():
         mean['gt'] = 0
 
         Path(dump_path).mkdir(parents=True, exist_ok=True)
-        result_file = open(f"{dump_path}/result_{symbol_type}.txt", 'a')
+        result_file = open(f"{dump_path}\\result_{symbol_type}.txt", 'a')
         result_file.write(f"Symbol Type: {symbol_type}\n")
         
         for diagram in gt_dict.keys():
@@ -258,12 +258,6 @@ dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls'
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
 large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
 dump_path = 'D:\\Experiments\\Detections'
-
-gt_xmls_path = '/Users/rkdbg/Codes/VCLab/Data/xml2eval/gt_xmls'
-dt_xmls_path = '/Users/rkdbg/Codes/VCLab/Data/xml2eval/dt_xmls'
-symbol_txt_path = '/Users/rkdbg/Codes/GitHub/PNID/rkdbq/evaluate/SymbolClass_Class.txt'
-large_symbol_txt_path = '/Users/rkdbg/Codes/GitHub/PNID/rkdbq/evaluate/SymbolClass_Class_big.txt'
-dump_path = '/Users/rkdbg/Codes/VCLab/Experiments/Detections'
 
 eval = evaluate(gt_xmls_path=gt_xmls_path,
                 dt_xmls_path=dt_xmls_path,
