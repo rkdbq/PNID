@@ -232,8 +232,8 @@ class evaluate_from_txt():
 
 # pipeline
 
-gt_txts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles_123'
-dt_txts_path = 'D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles_123'
+gt_txts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles'
+dt_txts_path = 'D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles'
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
 dump_path = 'D:\\Experiments\\Detections'
 
