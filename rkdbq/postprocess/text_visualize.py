@@ -1,18 +1,20 @@
 from post_process import diagram_text_to_dic, convert_class_to_diagram
+from merge import text_merge
 from tqdm import tqdm
 import cv2
 import numpy as np
 import datetime
 from pathlib import Path
 
+
 current_datetime = datetime.datetime.now()
 datetime_string = current_datetime.strftime("%Y-%m-%d_%H%M%S")
 
-model_name = "roi_trans_with_angle_123"
+model_name = "roi_trans"
 
 test_dir = "D:\\Data\\PNID_DOTA_before_split\\test\\"
 images_dir =  test_dir + "images\\"
-gt_dir = test_dir + "annfiles\\"
+gt_dir = test_dir + "annfiles_123\\"
 dt_base_dir = f"D:\\Experiments\\mmrotate\\{model_name}\\"
 diagram_dir = f"D:\\Experiments\\Detections\\Diagrams\\{model_name}\\{datetime_string}\\"
 vis_dir = f"D:\\Experiments\\Detections\\Text_visualize\\{model_name}\\{datetime_string}\\"
@@ -53,13 +55,20 @@ def draw_rectangle_and_save(input_path, output_path, gt_bboxs, dt_bboxs = 0):
     # 이미지를 저장합니다.
     cv2.imwrite(output_path, diagram)
 
-Path(vis_dir).mkdir(parents=True, exist_ok=True)
-Path(diagram_dir).mkdir(parents=True, exist_ok=True)
-convert_class_to_diagram(dt_base_dir, diagram_dir, 0.8)
-# gt_result = diagram_text_to_dic(gt_dir)
-# dt_result = diagram_text_to_dic(diagram_dir)
 
-# for diagram in tqdm(gt_result.keys(), desc="Text visualization in patch"):
+# ann_dir_path = "D:\\Experiments\\Detections\\old\\roi_trans_old\\test\\annfiles_123"
+# write_path = f"D:\\Experiments\\Text_Merge\\{datetime_string}"
+
+# merge = text_merge(ann_dir_path).write(write_path)
+
+# Path(vis_dir).mkdir(parents=True, exist_ok=True)
+# # Path(diagram_dir).mkdir(parents=True, exist_ok=True)
+# # convert_class_to_diagram(f"{write_path}\\", diagram_dir, 0.8)
+
+# gt_result = diagram_text_to_dic(gt_dir)
+# dt_result = diagram_text_to_dic(f"{write_path}\\")
+
+# for diagram in tqdm(gt_result.keys(), desc="Text Visualization"):
 #     diagram_path = f"{images_dir}{diagram}.jpg"
 #     save_path = f"{vis_dir}{diagram}.jpg"
 #     draw_rectangle_and_save(diagram_path, save_path, gt_result[diagram], dt_result[diagram])
