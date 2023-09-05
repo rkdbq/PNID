@@ -4,8 +4,9 @@ from pathlib import Path
 from tqdm import tqdm
 
 class text_merge():
-    def __init__(self, annfiles_path):
-        self.annfiles_path = annfiles_path
+    def __init__(self, annfiles_path: str, iof_thr: float = 0.3):
+        self.__annfiles_path = annfiles_path
+        self.__iof_thr = iof_thr
 
     def __cal_iof(self, remain_points: tuple, remove_points: tuple):
         coords = [(remain_points[0], remain_points[1]), 
@@ -50,7 +51,7 @@ class text_merge():
                         print(f'Error: {e}')
         return result
     
-    def __cmp_iof(self, ann: set, iof_thr: float = 0.8):
+    def __cmp_iof(self, ann: set):
         remain_ann = set.copy(ann)
         for remain_bbox in ann:
             for remove_bbox in ann:
@@ -61,7 +62,7 @@ class text_merge():
                         remain_points = remain_bbox[0:8]
                         remove_points = remove_bbox[0:8]
                         iof = self.__cal_iof(remain_points, remove_points)
-                        if iof > iof_thr:
+                        if iof > self.__iof_thr:
                             if remove_bbox in remain_ann:
                                 remain_ann.remove(remove_bbox)
         return remain_ann
@@ -76,7 +77,7 @@ class text_merge():
     def write_ann(self, write_path: str):
         Path(write_path).mkdir(parents=True, exist_ok=True)
 
-        remain_anns = self.__merge(self.annfiles_path)
+        remain_anns = self.__merge(self.__annfiles_path)
         for diagram, ann in remain_anns.items():
             result_file = open(f"{write_path}/{diagram}.txt", 'a')
             for bbox in ann:
@@ -88,7 +89,7 @@ class text_merge():
 
 # pipeline
 
-ann_dir_path = "D:\\Data\\PNID_DOTA_before_split\\test\\annfiles_123"
-write_path = "D:\\Experiments\\Text_Merge"
+ann_dir_path = "D:\\Data\\PNID_DOTA_before_split\\test\\annfiles"
+write_path = "D:\\Experiments\\Text_Merge\\roi_trans_merged"
 
 merge = text_merge(ann_dir_path).write_ann(write_path)
