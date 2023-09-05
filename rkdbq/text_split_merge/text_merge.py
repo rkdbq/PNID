@@ -4,7 +4,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 class text_merge():
-    def __init__(self, annfiles_path: str, iof_thr: float = 0.3):
+    def __init__(self, annfiles_path: str, iof_thr: float = 0.8):
         self.__annfiles_path = annfiles_path
         self.__iof_thr = iof_thr
 
@@ -92,4 +92,4 @@ class text_merge():
 ann_dir_path = "D:\\Data\\PNID_DOTA_before_split\\test\\annfiles"
 write_path = "D:\\Experiments\\Text_Merge\\roi_trans_merged"
 
-merge = text_merge(ann_dir_path).write_ann(write_path)
+merge = text_merge(ann_dir_path, iof_thr=0.3).write_ann(write_path)
