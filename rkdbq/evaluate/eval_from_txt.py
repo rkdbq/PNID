@@ -90,7 +90,7 @@ class evaluate_from_txt():
         """
         precision = {}
         recall = {}
-        for diagram in tqdm(gt_dict.keys(), f"Evaluation"):
+        for diagram in tqdm(gt_dict.keys(), f"Evaluating"):
             precision[diagram] = {}
             recall[diagram] = {}
             precision[diagram]['total'] = {}
@@ -182,6 +182,7 @@ class evaluate_from_txt():
             dump_path: result.txt를 저장할 경로
         
         """
+        Path(dump_path).mkdir(parents=True, exist_ok=True)
 
         gt_dict = self.__anntxts2dict(self.__txts_path['gt'])
         dt_dict = self.__anntxts2dict(self.__txts_path['dt'])
@@ -195,11 +196,10 @@ class evaluate_from_txt():
         mean['dt'] = 0
         mean['gt'] = 0
 
-        Path(dump_path).mkdir(parents=True, exist_ok=True)
         result_file = open(f"{dump_path}\\{model_name}_result.txt", 'a')
         result_file.write(f"IoU Threshold: {self.__iou_thr}\n")
         
-        for diagram in gt_dict.keys():
+        for diagram in tqdm(gt_dict.keys(), "Writing"):
             result_file.write(f"\n")
 
             result_file.write(f'test drawing: {diagram}----------------------------------\n')
@@ -235,14 +235,13 @@ class evaluate_from_txt():
 
 # pipeline
 
-gt_txts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles'
-# dt_txts_path = 'D:\\Experiments\\Text_Merge\\roi_trans_merged'
-dt_txts_path = 'D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles'
+gt_anntxts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles'
+dt_anntxts_path = "D:\\Experiments\\Text_Merge\\roi_trans\\iof_40"
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-dump_path = 'D:\\Experiments\\Detections\\roi_trans\\original'
+dump_path = 'D:\\Experiments\\Detections\\roi_trans\\merged\\iof_40'
 
 eval = evaluate_from_txt(
-                gt_txts_path=gt_txts_path,
-                dt_txts_path=dt_txts_path,
+                gt_txts_path=gt_anntxts_path,
+                dt_txts_path=dt_anntxts_path,
                 symbol_txt_path=symbol_txt_path,)
 eval.dump(dump_path, 'roi_trans')
