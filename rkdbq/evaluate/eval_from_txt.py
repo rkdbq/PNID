@@ -49,26 +49,29 @@ class evaluate_from_txt():
                     file_path = os.path.join(root, filename)
                     result[filename[0:22]] = self.__anntxt2dict(file_path)
         return result
+    
+    def __list2points(self, points: list):
+        coords = points
+        coords = np.array([int(i) for i in coords])
+        coords = coords.reshape(4,2)
+        coords = coords.tolist()
+        return coords
 
     def __cal_iou(self, gt_points: list, dt_points: list):
         """ IoU 계산 (바운딩 박스가 회전되어 있으므로 shapely.Polygon 사용)
 
         """
-        coords = gt_points
-        coords = np.array([int(i) for i in coords])
-        coords = coords.reshape(4,2)
-        coords = coords.tolist()
+        coords = self.__list2points(gt_points)
         gt_rect = Polygon(coords)
 
-        coords = dt_points
-        coords = np.array([int(i) for i in coords])
-        coords = coords.reshape(4,2)
-        coords = coords.tolist()
+        coords = self.__list2points(dt_points)
         dt_rect = Polygon(coords)
 
-        intersection = gt_rect.intersection(dt_rect).area
-        union = gt_rect.union(dt_rect).area
-        iou = intersection / union
+        iou = 0
+        if gt_rect.intersects(dt_rect):
+            intersection = gt_rect.intersection(dt_rect).area
+            union = gt_rect.union(dt_rect).area
+            iou = intersection / union
         return iou
 
     def __evaluate(self, gt_dict: dict, dt_dict: dict, symbol_dict: dict):
@@ -233,12 +236,13 @@ class evaluate_from_txt():
 # pipeline
 
 gt_txts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles'
+# dt_txts_path = 'D:\\Experiments\\Text_Merge\\roi_trans_merged'
 dt_txts_path = 'D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles'
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-dump_path = 'D:\\Experiments\\Detections'
+dump_path = 'D:\\Experiments\\Detections\\roi_trans\\original'
 
 eval = evaluate_from_txt(
                 gt_txts_path=gt_txts_path,
                 dt_txts_path=dt_txts_path,
                 symbol_txt_path=symbol_txt_path,)
-eval.dump(dump_path, 'roi_trans_123')
+eval.dump(dump_path, 'roi_trans')

@@ -91,9 +91,11 @@ class evaluate_from_xml():
         coords = [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax),]
         dt_rect = Polygon(coords)
 
-        intersection = gt_rect.intersection(dt_rect).area
-        union = gt_rect.union(dt_rect).area
-        iou = intersection / union
+        iou = 0
+        if gt_rect.intersects(dt_rect):
+            intersection = gt_rect.intersection(dt_rect).area
+            union = gt_rect.union(dt_rect).area
+            iou = intersection / union
         return iou
 
     def __evaluate(self, gt_dict: dict, dt_dict: dict, symbol_dict: dict):
