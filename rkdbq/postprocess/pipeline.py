@@ -16,8 +16,8 @@ if class2diagram:
     # class annfile to diagram annfile
 
     ## paths
-    cls_anns_path = ""
-    dt_anns_path = "" # to save diagram annfile
+    cls_anns_path = f"D:\\Experiments\\Detections\\old\\roi_trans_old\\"
+    dt_anns_path = f"D:\\Experiments\\Detections\\Diagrams\\roi_trans\\{exp_time}\\" # to save diagram annfile
     Path(dt_anns_path).mkdir(parents=True, exist_ok=True)
 
     ### perform
@@ -27,10 +27,10 @@ if dump_evaluate_dt:
     # evaluate precision & recall
 
     ## paths
-    gt_anns_path = ""
-    dt_anns_path = ""
-    symbol_dict_path = ""
-    eval_result_txt_path = "" # to save evaluated result txt file
+    gt_anns_path = f"D:\\Data\\PNID_DOTA_before_split\\test\\annfiles_123\\"
+    dt_anns_path = f"D:\\Experiments\\Detections\\Diagrams\\roi_trans_with_angle_123\\2023-08-30_161939\\"
+    symbol_dict_path = f"C:\\Codes\\GitHub\\PNID\\rkdbq\\postprocess\\SymbolClass_Class.txt"
+    eval_result_txt_path = f"D:\\Experiments\\Detections\\Evaluation\\{exp_time}\\" # to save evaluated result txt file
     Path(eval_result_txt_path).mkdir(parents=True, exist_ok=True)
 
     ### perform
@@ -44,21 +44,21 @@ if write_merged_dt:
     # merge duplicated text bounding box
 
     ## paths
-    dt_anns_path = ""
-    merged_dt_anns_path = "" # to save merged DT (diagram) annfile
+    dt_anns_path = f"D:\\Experiments\\Detections\\Diagrams\\roi_trans_with_angle_123\\2023-08-30_161939\\"
+    merged_dt_anns_path = f"D:\\Experiments\\Detections\\Merged\\{exp_time}\\" # to save merged DT (diagram) annfile
     Path(merged_dt_anns_path).mkdir(parents=True, exist_ok=True)
 
     ### perform
-    merge = text_merge(dt_anns_path).write(merged_dt_anns_path)
+    merge = text_merge(dt_anns_path).write_ann(merged_dt_anns_path)
 ######################################################################
 if visualize:
     # visualize on GT diagram
 
     ## paths
-    gt_imgs_path = ""
-    gt_anns_path = ""
-    dt_anns_path = ""
-    vis_imgs_path = "" # to save visualized image
+    gt_imgs_path = f"D:\\Data\\PNID_DOTA_before_split\\test\\images\\"
+    gt_anns_path = f"D:\\Data\\PNID_DOTA_before_split\\test\\annfiles_123\\"
+    dt_anns_path = f"D:\\Experiments\\Detections\\Diagrams\\roi_trans_with_angle_123\\2023-08-30_161939\\"
+    vis_imgs_path = f"D:\\Experiments\\Detections\\Text_visualize\\{exp_time}\\" # to save visualized image
     Path(merged_dt_anns_path).mkdir(parents=True, exist_ok=True)
 
     ### perform
