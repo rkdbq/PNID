@@ -57,7 +57,7 @@ def add_line_to_diagram(line, diagram_dir, class_name, confidence_score_threshol
     annfile.write(" ".join(map(str, points)) + " " + angle + " " + class_name + "\n")
     annfile.close()
 
-def convert_class_to_diagram(files_dir, diagram_dir, confidence_score_threshold):
+def convert_class_to_diagram(files_dir, diagram_dir, confidence_score_threshold = 0.5):
     """ 클래스 별 분류된 텍스트 파일을 도면 별 분류된 텍스트 파일로 변환
 
     Arguments:
@@ -180,7 +180,7 @@ def calculate_rotated_pr(gt_result, dt_result):
 
     return pr_result
 
-def dump_rotated_pr_result(pr_result, symbol_dict = 0, confidence_score_threshold = 0, mAP = 0):
+def dump_rotated_pr_result(pr_result, symbol_dict = 0, confidence_score_threshold = 0.5, mAP = 0):
         """ PR 계산 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
 
         Arguments:
