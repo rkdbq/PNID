@@ -4,14 +4,15 @@ from shapely import Polygon
 from pathlib import Path
 from tqdm import tqdm
 
-class evaluate():
-    def __init__(self, gt_xmls_path, dt_xmls_path, symbol_txt_path, large_symbol_txt_path):
+class evaluate_from_xml():
+    def __init__(self, gt_xmls_path: str, dt_xmls_path: str, symbol_txt_path: str, large_symbol_txt_path: str, iou_thr: float = 0.8):
         self.__xmls_path = {}
         self.__xmls_path['gt'] = gt_xmls_path
         self.__xmls_path['dt'] = dt_xmls_path
         self.__symbol_txt_path = {}
         self.__symbol_txt_path['total'] = symbol_txt_path
         self.__symbol_txt_path['large'] = large_symbol_txt_path
+        self.__iou_thr = iou_thr
 
     def __diff_dict(self, remain: dict, remove: dict):
         """ remain 딕셔너리 중 remove 딕셔너리와 중복되는 키를 가지는 쌍을 삭제
@@ -95,7 +96,7 @@ class evaluate():
         iou = intersection / union
         return iou
 
-    def __evaluate(self, gt_dict: dict, dt_dict: dict, symbol_dict: dict, iou_thr: float = 0.8):
+    def __evaluate(self, gt_dict: dict, dt_dict: dict, symbol_dict: dict):
         """ Precision, Recall 계산에 필요한 TP, DT, GT 카운팅
         
         Arguments:
@@ -137,7 +138,7 @@ class evaluate():
                         if cls not in tp:
                             tp[cls] = 0
                         iou = self.__cal_iou(gt_bbox['bndbox'], dt_bbox['bndbox'])
-                        if iou > iou_thr:
+                        if iou > self.__iou_thr:
                             tp[cls] += 1
             for dt_bbox in dt_dict[diagram]:
                 cls = dt_bbox['class']
@@ -169,6 +170,8 @@ class evaluate():
                     precision[diagram][cls] = {}
                 precision[diagram][cls]['dt'] = cnt
                 precision[diagram]['total']['dt'] += cnt
+                if 'tp' not in precision[diagram][cls]: 
+                    precision[diagram][cls]['tp'] = 0
 
             # Mapping recall
             for cls, cnt in tp.items():
@@ -185,6 +188,8 @@ class evaluate():
                     recall[diagram][cls] = {}
                 recall[diagram][cls]['gt'] = cnt
                 recall[diagram]['total']['gt'] += cnt
+                if 'tp' not in recall[diagram][cls]: 
+                    recall[diagram][cls]['tp'] = 0
                 
         return precision, recall
 
@@ -253,15 +258,16 @@ class evaluate():
 
 # pipeline
 
-gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls'
-dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls'
-symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
-dump_path = 'D:\\Experiments\\Detections'
+# gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls'
+# dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls'
+# symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
+# large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
+# dump_path = 'D:\\Experiments\\Detections'
 
-eval = evaluate(gt_xmls_path=gt_xmls_path,
-                dt_xmls_path=dt_xmls_path,
-                symbol_txt_path=symbol_txt_path,
-                large_symbol_txt_path=large_symbol_txt_path,)
-eval.dump(dump_path=dump_path, 
-          symbol_type='total',)
+# eval = evaluate_from_xml(
+#                 gt_xmls_path=gt_xmls_path,
+#                 dt_xmls_path=dt_xmls_path,
+#                 symbol_txt_path=symbol_txt_path,
+#                 large_symbol_txt_path=large_symbol_txt_path,)
+# eval.dump(dump_path=dump_path, 
+#           symbol_type='total',)
