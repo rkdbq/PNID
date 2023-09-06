@@ -234,6 +234,13 @@ class evaluate_from_txt():
         return
     
     def visualize(self, gt_imgs_path: str, write_path: str, cls: str = 'text'):
+        """ 바운딩 박스들을 가시화
+        
+        Arguments:
+            gt_imgs_path: 원본 이미지의 경로
+            write_path: 가시화된 이미지를 저장할 경로
+        
+        """
         Path(write_path).mkdir(parents=True, exist_ok=True)
 
         gt_dict = self.__anntxts2dict(self.__txts_path['gt'])
@@ -246,21 +253,21 @@ class evaluate_from_txt():
             gt_items = gt_dict[diagram]
             dt_items = dt_dict[diagram]
 
-            for gt_item in gt_items:
-                gt_bbox = gt_item[0]
-                gt_points = self.__list2points(gt_bbox)
-                gt_cls = gt_item[1]
-                if gt_cls == cls:
-                    for num in range(4):
-                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 4)
-
             for dt_item in dt_items:
                 dt_bbox = dt_item[0]
                 dt_points = self.__list2points(dt_bbox)
                 dt_cls = dt_item[1]
                 if dt_cls == cls:
                     for num in range(4):
-                        cv2.line(vis_img, dt_points[(num + 0) % 4], dt_points[(num + 1) % 4], (0, 0, 255), 2)
+                        cv2.line(vis_img, dt_points[(num + 0) % 4], dt_points[(num + 1) % 4], (0, 0, 255), 4)
+
+            for gt_item in gt_items:
+                gt_bbox = gt_item[0]
+                gt_points = self.__list2points(gt_bbox)
+                gt_cls = gt_item[1]
+                if gt_cls == cls:
+                    for num in range(4):
+                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 2)
 
             vis_img_path = os.path.join(write_path, f"{diagram}.jpg")
             cv2.imwrite(vis_img_path, vis_img)
@@ -269,14 +276,14 @@ class evaluate_from_txt():
 
 gt_imgs_path = 'D:\\Data\PNID_DOTA_before_split\\test\\images'
 gt_anntxts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles'
-dt_anntxts_path = "D:\\Experiments\\Text_Merge\\roi_trans\\iof_30"
+dt_anntxts_path = "D:\\Experiments\\Text_Merge\\roi_trans\\iof_30_adv"
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-dump_path = 'D:\\Experiments\\Detections\\roi_trans\\merged\\iof_30'
-visualize_path = 'D:\\Experiments\\Visualization\\roi_trans\\merged\\iof_30'
+dump_path = 'D:\\Experiments\\Detections\\roi_trans\\merged\\iof_30_adv'
+visualize_path = 'D:\\Experiments\\Visualization\\roi_trans\\merged\\iof_30_adv'
 
 eval = evaluate_from_txt(
                 gt_txts_path=gt_anntxts_path,
                 dt_txts_path=dt_anntxts_path,
                 symbol_txt_path=symbol_txt_path,)
-# eval.dump(dump_path, 'roi_trans')
+eval.dump(dump_path, 'roi_trans')
 eval.visualize(gt_imgs_path, visualize_path)
