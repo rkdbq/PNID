@@ -1,4 +1,4 @@
-import os
+import os, cv2
 import numpy as np
 from shapely import Polygon
 from pathlib import Path
@@ -232,16 +232,51 @@ class evaluate_from_txt():
 
         result_file.close()
         return
+    
+    def visualize(self, gt_imgs_path: str, write_path: str, cls: str = 'text'):
+        Path(write_path).mkdir(parents=True, exist_ok=True)
+
+        gt_dict = self.__anntxts2dict(self.__txts_path['gt'])
+        dt_dict = self.__anntxts2dict(self.__txts_path['dt'])
+
+        for diagram in tqdm(dt_dict.keys(), f"Visualizing '{cls}' Class"):
+            gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
+            vis_img = cv2.imread(gt_img_path)
+
+            gt_items = gt_dict[diagram]
+            dt_items = dt_dict[diagram]
+
+            for gt_item in gt_items:
+                gt_bbox = gt_item[0]
+                gt_points = self.__list2points(gt_bbox)
+                gt_cls = gt_item[1]
+                if gt_cls == cls:
+                    for num in range(4):
+                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 4)
+
+            for dt_item in dt_items:
+                dt_bbox = dt_item[0]
+                dt_points = self.__list2points(dt_bbox)
+                dt_cls = dt_item[1]
+                if dt_cls == cls:
+                    for num in range(4):
+                        cv2.line(vis_img, dt_points[(num + 0) % 4], dt_points[(num + 1) % 4], (0, 0, 255), 2)
+
+            vis_img_path = os.path.join(write_path, f"{diagram}.jpg")
+            cv2.imwrite(vis_img_path, vis_img)
 
 # pipeline
 
+gt_imgs_path = 'D:\\Data\PNID_DOTA_before_split\\test\\images'
 gt_anntxts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles'
-dt_anntxts_path = "D:\\Experiments\\Text_Merge\\roi_trans\\iof_40"
+dt_anntxts_path = "D:\\Experiments\\Text_Merge\\roi_trans\\iof_30"
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-dump_path = 'D:\\Experiments\\Detections\\roi_trans\\merged\\iof_40'
+dump_path = 'D:\\Experiments\\Detections\\roi_trans\\merged\\iof_30'
+visualize_path = 'D:\\Experiments\\Visualization\\roi_trans\\merged\\iof_30'
 
 eval = evaluate_from_txt(
                 gt_txts_path=gt_anntxts_path,
                 dt_txts_path=dt_anntxts_path,
                 symbol_txt_path=symbol_txt_path,)
-eval.dump(dump_path, 'roi_trans')
+# eval.dump(dump_path, 'roi_trans')
+eval.visualize(gt_imgs_path, visualize_path)
