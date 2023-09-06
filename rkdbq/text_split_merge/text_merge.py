@@ -54,6 +54,31 @@ class text_merge():
                     result[diagram] = self.__ann2dict(ann_path)
         return result
     
+    def __get_merged_points(self, remain_bbox: list, remove_bbox: list):
+        result = []
+        remain_points = remain_bbox[0:8]
+        remove_points = remove_bbox[0:8]
+        remain_cls = remain_bbox[8]
+        mid = {}
+        mid['remain'] = {'x': (remain_points[0] + remain_points[2] + remain_points[4] + remain_points[6]) / 4,
+                         'y': (remain_points[1] + remain_points[3] + remain_points[5] + remain_points[7]) / 4,}
+        mid['remain'] = {'x': (remove_points[0] + remove_points[2] + remove_points[4] + remove_points[6]) / 4,
+                         'y': (remove_points[1] + remove_points[3] + remove_points[5] + remove_points[7]) / 4,}
+        mid['merged'] = {'x': (mid['remain']['x'] + mid['remove']['x']) / 2,
+                         'y': (mid['remain']['y'] + mid['remove']['y']) / 2,}
+        idx = 0
+        for remain_point, remove_point in zip(remain_points, remove_points):
+            diff = {}
+            coord = 'x' if idx % 2 == 0 else 'y'
+            diff['remain'] = abs(remain_point - mid['merged'][coord])
+            diff['remove'] = abs(remove_point - mid['merged'][coord])
+            if diff['remain'] > diff['remove']:
+                result.append(remain_point)
+            else:
+                result.append(remove_point)
+        result.append(remain_cls)
+        return tuple(result)
+    
     def __cmp_iof(self, ann: set):
         remain_ann = set.copy(ann)
         for remain_bbox in ann:
@@ -68,6 +93,10 @@ class text_merge():
                         if iof > self.__iof_thr:
                             if remove_bbox in remain_ann:
                                 remain_ann.remove(remove_bbox)
+                            if remain_bbox in remain_ann:
+                                remain_ann.remove(remain_bbox)
+                            merged_bbox = self.__get_merged_points(remain_bbox, remove_bbox)
+                            remain_ann.add(merged_bbox)
         return remain_ann
     
     def __merge(self, ann_dir_path: str):
@@ -97,6 +126,6 @@ class text_merge():
 # pipeline
 
 dt_anntxts_path = 'D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles'
-write_path = 'D:\\Experiments\\Text_Merge\\roi_trans\\iof_40'
+write_path = 'D:\\Experiments\\Text_Merge\\roi_trans\\iof_30_adv'
 
-merge = text_merge(dt_anntxts_path, iof_thr=0.4).write_ann(write_path)
+merge = text_merge(dt_anntxts_path, iof_thr=0.3).write_ann(write_path)
