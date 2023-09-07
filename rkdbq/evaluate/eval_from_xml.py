@@ -129,17 +129,17 @@ class evaluate_from_xml():
             degree[diagram]['total'] = {}
             degree[diagram]['total']['tp_with_dig'] = 0
             degree[diagram]['total']['tp'] = 0
-            recognition[diagram] = {}
-            recognition[diagram]['total'] = {}
-            recognition[diagram]['total']['tp_with_recog'] = 0
-            recognition[diagram]['total']['tp'] = 0
+            # recognition[diagram] = {}
+            # recognition[diagram]['total'] = {}
+            # recognition[diagram]['total']['tp_with_recog'] = 0
+            # recognition[diagram]['total']['tp'] = 0
             if diagram not in dt_dict: 
                 print(f'{diagram} is skipped. (NOT exist in detection xmls path)\n')
                 continue
             
             # Counting tp, dt, gt for each classes
             tp = {}
-            # tp_with_dig = {}
+            tp_with_dig = {}
             # tp_with_recog = {}
             dt = {}
             gt = {}
@@ -151,16 +151,16 @@ class evaluate_from_xml():
                             continue
                         if cls not in tp:
                             tp[cls] = 0
-                        # if cls not in tp_with_dig:
-                        #     tp_with_dig[cls] = 0
+                        if cls not in tp_with_dig:
+                            tp_with_dig[cls] = 0
                         # if cls not in tp_with_recog:
                         #     tp_with_recog[cls] = 0
                         iou = self.__cal_iou(gt_bbox['bndbox'], dt_bbox['bndbox'])
                         if iou > self.__iou_thr:
                             tp[cls] += 1
-                            # if cmp_degree and gt_deg == dt_deg:
-                            #     tp_with_dig[cls] += 1
-                            # if cmp_recog and gt_recog == dt_recog:
+                            if cmp_degree and gt_bbox['degree'] == dt_bbox['degree']:
+                                tp_with_dig[cls] += 1
+                            # if cmp_recog and gt_bbox['type'] gt_recog == dt_recog:
                             #     tp_with_recog[cls] += 1
             for dt_bbox in dt_dict[diagram]:
                 cls = dt_bbox['class']
