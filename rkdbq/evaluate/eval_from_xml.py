@@ -98,7 +98,7 @@ class evaluate_from_xml():
             iou = intersection / union
         return iou
 
-    def __evaluate(self, gt_dict: dict, dt_dict: dict, symbol_dict: dict):
+    def __evaluate(self, gt_dict: dict, dt_dict: dict, symbol_dict: dict,  cmp_degree: bool = False, cmp_recog: bool = False):
         """ Precision, Recall 계산에 필요한 TP, DT, GT 카운팅
         
         Arguments:
@@ -114,21 +114,33 @@ class evaluate_from_xml():
         """
         precision = {}
         recall = {}
+        degree = {}
+        recognition = {}
         for diagram in tqdm(gt_dict.keys(), f"Evaluation"):
             precision[diagram] = {}
-            recall[diagram] = {}
             precision[diagram]['total'] = {}
-            recall[diagram]['total'] = {}
             precision[diagram]['total']['tp'] = 0
             precision[diagram]['total']['dt'] = 0
+            recall[diagram] = {}
+            recall[diagram]['total'] = {}
             recall[diagram]['total']['tp'] = 0
             recall[diagram]['total']['gt'] = 0
+            degree[diagram] = {}
+            degree[diagram]['total'] = {}
+            degree[diagram]['total']['tp_with_dig'] = 0
+            degree[diagram]['total']['tp'] = 0
+            recognition[diagram] = {}
+            recognition[diagram]['total'] = {}
+            recognition[diagram]['total']['tp_with_recog'] = 0
+            recognition[diagram]['total']['tp'] = 0
             if diagram not in dt_dict: 
                 print(f'{diagram} is skipped. (NOT exist in detection xmls path)\n')
                 continue
             
             # Counting tp, dt, gt for each classes
             tp = {}
+            # tp_with_dig = {}
+            # tp_with_recog = {}
             dt = {}
             gt = {}
             for gt_bbox in gt_dict[diagram]:
@@ -139,9 +151,17 @@ class evaluate_from_xml():
                             continue
                         if cls not in tp:
                             tp[cls] = 0
+                        # if cls not in tp_with_dig:
+                        #     tp_with_dig[cls] = 0
+                        # if cls not in tp_with_recog:
+                        #     tp_with_recog[cls] = 0
                         iou = self.__cal_iou(gt_bbox['bndbox'], dt_bbox['bndbox'])
                         if iou > self.__iou_thr:
                             tp[cls] += 1
+                            # if cmp_degree and gt_deg == dt_deg:
+                            #     tp_with_dig[cls] += 1
+                            # if cmp_recog and gt_recog == dt_recog:
+                            #     tp_with_recog[cls] += 1
             for dt_bbox in dt_dict[diagram]:
                 cls = dt_bbox['class']
                 if cls not in symbol_dict:
@@ -193,9 +213,9 @@ class evaluate_from_xml():
                 if 'tp' not in recall[diagram][cls]: 
                     recall[diagram][cls]['tp'] = 0
                 
-        return precision, recall
+        return precision, recall, degree, recognition
 
-    def dump(self, dump_path: str, symbol_type: str = 'total'):
+    def dump(self, dump_path: str, symbol_type: str = 'total',  cmp_degree: bool = False, cmp_recog: bool = False):
         """ Precision, Recall을 계산하여 txt 파일로 출력
         
         Arguments:
@@ -213,7 +233,7 @@ class evaluate_from_xml():
         symbol_dict['small'] = self.__diff_dict(symbol_dict['total'], symbol_dict['large'])
 
         symbol_dict = symbol_dict[symbol_type]
-        precision, recall = self.__evaluate(gt_dict, dt_dict, symbol_dict)
+        precision, recall, degree, recognition = self.__evaluate(gt_dict, dt_dict, symbol_dict, cmp_degree, cmp_recog)
 
         mean = {}
         mean['tp'] = 0
