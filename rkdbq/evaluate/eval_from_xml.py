@@ -1,5 +1,6 @@
-import os
+import os, cv2, math
 import xml.etree.ElementTree as ET
+import numpy as np
 from shapely import Polygon
 from pathlib import Path
 from tqdm import tqdm
@@ -37,6 +38,65 @@ class evaluate_from_xml():
             result[cls] = num
         return result
     
+    def __map2points(self, points: map):
+        # print(points)
+        xmin = int(points['xmin']),
+        ymin = int(points['ymin']),
+        xmax = int(points['xmax']),
+        ymax = int(points['ymax']),
+        coords = [xmin, ymin, xmin, ymax, xmax, ymax, xmax, ymin]
+        print(coords)
+        coords = np.array([int(i) for i in coords])
+        coords = coords.reshape(4,2)
+        coords = coords.tolist()
+        return coords
+    
+    def __rotate(self, point: tuple, degree: float, pivot: tuple):
+        rad = math.radians(degree)
+        cos_theta = math.cos(rad)
+        sin_theta = math.sin(rad)
+        x, y = point
+        piv_x, piv_y = pivot
+
+        rotated = {}
+        rotated['x'] = cos_theta * (x - piv_x) - sin_theta * (y - piv_y) + piv_x
+        rotated['y'] = sin_theta * (x - piv_x) + cos_theta * (y - piv_y) + piv_y
+
+        return (rotated['x'], rotated['y'])
+    
+    def __four_gt2two_gt(self, gt_bbox: dict):
+        # 1, 3번 점의 중점을 기준으로 -degree만큼 회전된 각도 반환
+
+        result = {}
+        bbox = {}
+
+        for key, value in gt_bbox.items():
+            result[key] = value
+        for coord, value in gt_bbox['bndbox'].items():
+            bbox[coord] = float(value)
+        bbox['degree'] = float(gt_bbox['degree'])
+
+        mid = {}
+        mid['x'] = (bbox['x1'] + bbox['x3']) / 2
+        mid['y'] = (bbox['y1'] + bbox['y3']) / 2
+
+        point = (bbox['x1'], bbox['y1'])
+        degree = -bbox['degree']
+        pivot = (mid['x'], mid['y'])
+
+        x, y = self.__rotate(point, degree, pivot)
+        result['xmin'] = str(x)
+        result['ymin'] = str(y)
+
+        point = (bbox['x3'], bbox['y3'])
+
+        x, y = self.__rotate(point, degree, pivot)
+        result['xmax'] = str(x)
+        result['ymax'] = str(y)
+
+        result['bndbox'] = result
+        return result
+    
     def __xml2dict(self, element):
         """ xml 파일을 딕셔너리로 파싱
         
@@ -56,19 +116,26 @@ class evaluate_from_xml():
                 result[child.tag] = child.text
         return result
 
-    def __xmls2dict(self, xml_dir_path: str):
+    def __xmls2dict(self, xml_dir_path: str, is_four_gt: bool = False):
         """ xml 파일들을 딕셔너리로 파싱
         
         """
         result = {}
         for root, dirs, files in os.walk(xml_dir_path):
-            for filename in files:
+            for filename in tqdm(files, "Parcing XMLs"):
                 if filename.endswith('.xml'):
                     file_path = os.path.join(root, filename)
                     try:
                         tree = ET.parse(file_path)
                         root_element = tree.getroot()
-                        result[filename[0:22]] = self.__xml2dict(root_element)['symbol_object']
+                        diagram = filename[0:22]
+                        result[diagram] = self.__xml2dict(root_element)['symbol_object']
+                        if is_four_gt:
+                            two_bboxs = []
+                            for bbox in result[diagram]:
+                                two_bboxs.append(self.__four_gt2two_gt(bbox))
+                            result[diagram] = two_bboxs
+
                     except ET.ParseError as e:
                         print(f'Error parsing {file_path}: {e}')
         return result
@@ -143,10 +210,10 @@ class evaluate_from_xml():
             # tp_with_recog = {}
             dt = {}
             gt = {}
-            for gt_bbox in gt_dict[diagram]:
-                for dt_bbox in dt_dict[diagram]:
-                    if gt_bbox['class'] == dt_bbox['class']:
-                        cls = gt_bbox['class']
+            for gt_item in gt_dict[diagram]:
+                for dt_item in dt_dict[diagram]:
+                    if gt_item['class'] == dt_item['class']:
+                        cls = gt_item['class']
                         if cls not in symbol_dict:
                             continue
                         if cls not in tp:
@@ -155,22 +222,22 @@ class evaluate_from_xml():
                             tp_with_dig[cls] = 0
                         # if cls not in tp_with_recog:
                         #     tp_with_recog[cls] = 0
-                        iou = self.__cal_iou(gt_bbox['bndbox'], dt_bbox['bndbox'])
+                        iou = self.__cal_iou(gt_item['bndbox'], dt_item['bndbox'])
                         if iou > self.__iou_thr:
                             tp[cls] += 1
-                            if cmp_degree and gt_bbox['degree'] == dt_bbox['degree']:
+                            if cmp_degree and gt_item['degree'] == dt_item['degree']:
                                 tp_with_dig[cls] += 1
                             # if cmp_recog and gt_bbox['type'] gt_recog == dt_recog:
                             #     tp_with_recog[cls] += 1
-            for dt_bbox in dt_dict[diagram]:
-                cls = dt_bbox['class']
+            for dt_item in dt_dict[diagram]:
+                cls = dt_item['class']
                 if cls not in symbol_dict:
                     continue
                 if cls not in dt:
                     dt[cls] = 0
                 dt[cls] += 1
-            for gt_bbox in gt_dict[diagram]:
-                cls = gt_bbox['class']
+            for gt_item in gt_dict[diagram]:
+                cls = gt_item['class']
                 if cls not in symbol_dict:
                     continue
                 if cls not in gt:
@@ -224,7 +291,7 @@ class evaluate_from_xml():
         
         """
 
-        gt_dict = self.__xmls2dict(self.__xmls_path['gt'])
+        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], True)
         dt_dict = self.__xmls2dict(self.__xmls_path['dt'])
 
         symbol_dict = {}
@@ -244,7 +311,7 @@ class evaluate_from_xml():
         result_file = open(f"{dump_path}\\result_{symbol_type}.txt", 'a')
         result_file.write(f"Symbol Type: {symbol_type}\n")
         
-        for diagram in gt_dict.keys():
+        for diagram in tqdm(gt_dict.keys(), "Writing"):
             result_file.write(f"\n")
 
             result_file.write(f'test drawing: {diagram}----------------------------------\n')
@@ -277,19 +344,58 @@ class evaluate_from_xml():
 
         result_file.close()
         return
+    
+    def visualize(self, gt_imgs_path: str, write_path: str, cls: str = 'text'):
+        """ 바운딩 박스들을 가시화
+        
+        Arguments:
+            gt_imgs_path: 원본 이미지의 경로
+            write_path: 가시화된 이미지를 저장할 경로
+        
+        """
+        Path(write_path).mkdir(parents=True, exist_ok=True)
+
+        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], True)
+        dt_dict = self.__xmls2dict(self.__xmls_path['dt'])
+
+        for diagram in tqdm(dt_dict.keys(), f"Visualizing '{cls}' Class"):
+            gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
+            vis_img = cv2.imread(gt_img_path)
+
+            for dt_item in dt_dict[diagram]:
+                dt_bbox = dt_item['bndbox']
+                dt_points = self.__map2points(dt_bbox)
+                dt_cls = dt_item['class']
+                if dt_cls == cls or cls == 'all':
+                    for num in range(4):
+                        cv2.line(vis_img, dt_points[(num + 0) % 4], dt_points[(num + 1) % 4], (0, 0, 255), 4)
+
+            for gt_item in gt_dict[diagram]:
+                gt_bbox = gt_item[0]
+                gt_points = self.__map2points(gt_bbox)
+                gt_cls = gt_item[1]
+                if gt_cls == cls or cls == 'all':
+                    for num in range(4):
+                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 2)
+
+            vis_img_path = os.path.join(write_path, f"{diagram}.jpg")
+            cv2.imwrite(vis_img_path, vis_img)
 
 # pipeline
 
-# gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls'
-# dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls'
-# symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-# large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
-# dump_path = 'D:\\Experiments\\Detections'
+gt_imgs_path = 'D:\\Data\PNID_DOTA_before_split\\test\\images'
+gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls'
+dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls_after_rev'
+symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
+large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
+dump_path = 'D:\\Experiments\\Detections\\After_rev_123'
+visualize_path = 'D:\\Experiments\\Visualization\\from_xml\\After_rev_123'
 
-# eval = evaluate_from_xml(
-#                 gt_xmls_path=gt_xmls_path,
-#                 dt_xmls_path=dt_xmls_path,
-#                 symbol_txt_path=symbol_txt_path,
-#                 large_symbol_txt_path=large_symbol_txt_path,)
+eval = evaluate_from_xml(
+                gt_xmls_path=gt_xmls_path,
+                dt_xmls_path=dt_xmls_path,
+                symbol_txt_path=symbol_txt_path,
+                large_symbol_txt_path=large_symbol_txt_path,)
 # eval.dump(dump_path=dump_path, 
 #           symbol_type='total',)
+eval.visualize(gt_imgs_path, visualize_path)
