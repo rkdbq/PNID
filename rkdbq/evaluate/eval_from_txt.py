@@ -74,7 +74,7 @@ class evaluate_from_txt():
             iou = intersection / union
         return iou
 
-    def __evaluate(self, gt_dict: dict, dt_dict: dict, symbol_dict: dict):
+    def __evaluate(self, gt_dict: dict, dt_dict: dict, symbol_dict: dict, cmp_degree: bool = False, cmp_recog: bool = False):
         """ Precision, Recall 계산에 필요한 TP, DT, GT 카운팅
         
         Arguments:
@@ -85,43 +85,68 @@ class evaluate_from_txt():
 
         Returns:
             precision: {도면 이름: {클래스 이름: {tp, dt}}, ..., total: {tp, dt}}}}
-            recall: {도면 이름: {클래스 이름: {tp, gt}}, ..., total: {tp, gt}}}} 
+            recall: {도면 이름: {클래스 이름: {tp, gt}}, ..., total: {tp, gt}}}}
         
         """
         precision = {}
         recall = {}
+        degree = {}
+        recognition = {}
+
         for diagram in tqdm(gt_dict.keys(), f"Evaluating"):
             precision[diagram] = {}
-            recall[diagram] = {}
             precision[diagram]['total'] = {}
-            recall[diagram]['total'] = {}
             precision[diagram]['total']['tp'] = 0
             precision[diagram]['total']['dt'] = 0
+            recall[diagram] = {}
+            recall[diagram]['total'] = {}
             recall[diagram]['total']['tp'] = 0
             recall[diagram]['total']['gt'] = 0
+            degree[diagram] = {}
+            degree[diagram]['total'] = {}
+            degree[diagram]['total']['tp_with_dig'] = 0
+            degree[diagram]['total']['tp'] = 0
+            recognition[diagram] = {}
+            recognition[diagram]['total'] = {}
+            recognition[diagram]['total']['tp_with_recog'] = 0
+            recognition[diagram]['total']['tp'] = 0
             if diagram not in dt_dict: 
                 print(f'{diagram} is skipped. (NOT exist in detection xmls path)\n')
                 continue
             
             # Counting tp, dt, gt for each classes
             tp = {}
+            # tp_with_dig = {}
+            # tp_with_recog = {}
             dt = {}
             gt = {}
             for gt_item in gt_dict[diagram]:
                 gt_bbox = gt_item[0]
                 gt_cls = gt_item[1]
+                # gt_deg = gt_item[2]
+                # gt_recog = gt_item[3]
                 for dt_item in dt_dict[diagram]:
                     dt_bbox = dt_item[0]
                     dt_cls = dt_item[1]
+                    # dt_deg = dt_item[2]
+                    # dt_recog = dt_item[3]
                     if gt_cls == dt_cls:
                         cls = gt_cls
                         if cls not in symbol_dict:
                             continue
                         if cls not in tp:
                             tp[cls] = 0
+                        # if cls not in tp_with_dig:
+                        #     tp_with_dig[cls] = 0
+                        # if cls not in tp_with_recog:
+                        #     tp_with_recog[cls] = 0
                         iou = self.__cal_iou(gt_bbox, dt_bbox)
                         if iou > self.__iou_thr:
                             tp[cls] += 1
+                            # if cmp_degree and gt_deg == dt_deg:
+                            #     tp_with_dig[cls] += 1
+                            # if cmp_recog and gt_recog == dt_recog:
+                            #     tp_with_recog[cls] += 1
             for dt_item in dt_dict[diagram]:
                 cls = dt_item[1]
                 if cls not in symbol_dict:
@@ -173,9 +198,9 @@ class evaluate_from_txt():
                 if 'tp' not in recall[diagram][cls]: 
                     recall[diagram][cls]['tp'] = 0
                 
-        return precision, recall
+        return precision, recall, degree, recognition
 
-    def dump(self, dump_path: str, model_name: str = ""):
+    def dump(self, dump_path: str, model_name: str = "", cmp_degree: bool = False, cmp_recog: bool = False):
         """ Precision, Recall을 계산하여 txt 파일로 출력
         
         Arguments:
@@ -189,7 +214,7 @@ class evaluate_from_txt():
 
         symbol_dict = self.__txt2dict(self.__symbol_txt_path)
 
-        precision, recall = self.__evaluate(gt_dict, dt_dict, symbol_dict)
+        precision, recall, degree, recognition = self.__evaluate(gt_dict, dt_dict, symbol_dict, cmp_degree, cmp_recog)
 
         mean = {}
         mean['tp'] = 0
@@ -276,14 +301,14 @@ class evaluate_from_txt():
 
 gt_imgs_path = 'D:\\Data\PNID_DOTA_before_split\\test\\images'
 gt_anntxts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles'
-dt_anntxts_path = "D:\\Experiments\\Text_Merge\\roi_trans\\iof_30_adv"
+dt_anntxts_path = "D:\\Experiments\\Text_Merge\\roi_trans\\iof_20_mid"
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-dump_path = 'D:\\Experiments\\Detections\\roi_trans\\merged\\iof_30_adv'
-visualize_path = 'D:\\Experiments\\Visualization\\roi_trans\\merged\\iof_30_adv'
+dump_path = 'D:\\Experiments\\Detections\\roi_trans\\merged\\iof_20_mid'
+visualize_path = 'D:\\Experiments\\Visualization\\roi_trans\\merged\\iof_20_mid'
 
 eval = evaluate_from_txt(
                 gt_txts_path=gt_anntxts_path,
                 dt_txts_path=dt_anntxts_path,
                 symbol_txt_path=symbol_txt_path,)
 eval.dump(dump_path, 'roi_trans')
-eval.visualize(gt_imgs_path, visualize_path)
+# eval.visualize(gt_imgs_path, visualize_path)
