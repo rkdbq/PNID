@@ -39,6 +39,9 @@ class evaluate_from_xml():
         return result
     
     def __dict2points(self, points: dict):
+        """ 점 딕셔너리를 리스트로 변환
+        
+        """
         coords = [round(float(points['x1'])), round(float(points['y1'])), round(float(points['x2'])), round(float(points['y2'])), 
                   round(float(points['x3'])), round(float(points['y3'])), round(float(points['x4'])), round(float(points['y4'])),]
         coords = np.array([int(i) for i in coords])
@@ -47,6 +50,9 @@ class evaluate_from_xml():
         return coords
     
     def __rotate(self, point: tuple, degree: float, pivot: tuple):
+        """ pivot을 기준으로 degree만큼 point를 회전
+        
+        """
         rad = math.radians(degree)
         cos_theta = math.cos(rad)
         sin_theta = math.sin(rad)
@@ -60,6 +66,9 @@ class evaluate_from_xml():
         return (rotated['x'], rotated['y'])
     
     def __two2four(self, bbox: dict):
+        """ 2점 좌표 형식을 4점 좌표 형식으로 변환
+        
+        """
         result = {}
         bbox_two = {}
         bbox_four = {}
@@ -124,7 +133,7 @@ class evaluate_from_xml():
         """
         result = {}
         for root, dirs, files in os.walk(xml_dir_path):
-            for filename in tqdm(files, "Parcing XMLs"):
+            for filename in tqdm(files, f"Parcing XMLs ({mode})"):
                 if filename.endswith('.xml'):
                     file_path = os.path.join(root, filename)
                     try:
@@ -165,7 +174,7 @@ class evaluate_from_xml():
             gt_dict: GT xml로부터 파싱된 딕셔너리
             dt_dict: DT xml로부터 파싱된 딕셔너리
             symbol_dict: Symbol txt로부터 파싱된 딕셔너리
-            iou_thr: IoU Threshold
+            cmp_degree: 각도 비교 여부
 
         Returns:
             precision: {도면 이름: {클래스 이름: {tp, dt}}, ..., total: {tp, dt}}}}
@@ -187,7 +196,7 @@ class evaluate_from_xml():
             recall[diagram]['total']['gt'] = 0
             degree[diagram] = {}
             degree[diagram]['total'] = {}
-            degree[diagram]['total']['tp_with_dig'] = 0
+            degree[diagram]['total']['tp_with_deg'] = 0
             degree[diagram]['total']['tp'] = 0
             # recognition[diagram] = {}
             # recognition[diagram]['total'] = {}
@@ -199,7 +208,7 @@ class evaluate_from_xml():
             
             # Counting tp, dt, gt for each classes
             tp = {}
-            tp_with_dig = {}
+            tp_with_deg = {}
             # tp_with_recog = {}
             dt = {}
             gt = {}
@@ -212,15 +221,18 @@ class evaluate_from_xml():
                                 continue
                             if cls not in tp:
                                 tp[cls] = 0
-                            if cls not in tp_with_dig:
-                                tp_with_dig[cls] = 0
+                            if cls not in tp_with_deg:
+                                tp_with_deg[cls] = 0
                             # if cls not in tp_with_recog:
                             #     tp_with_recog[cls] = 0
                             iou = self.__cal_iou(gt_item['bndbox'], dt_item['bndbox'])
                             if iou > self.__iou_thr:
                                 tp[cls] += 1
-                                if cmp_degree and gt_item['degree'] == dt_item['degree']:
-                                    tp_with_dig[cls] += 1
+                                # print(f"gt: {gt_item['degree']}, dt: {dt_item['degree']}")
+                                gt_deg = float(gt_item['degree'])
+                                dt_deg = float(dt_item['degree'])
+                                if cmp_degree and gt_deg == dt_deg:
+                                    tp_with_deg[cls] += 1
                                 # if cmp_recog and gt_bbox['type'] gt_recog == dt_recog:
                                 #     tp_with_recog[cls] += 1
             for dt_item in dt_dict[diagram]:
@@ -273,6 +285,25 @@ class evaluate_from_xml():
                 recall[diagram]['total']['gt'] += cnt
                 if 'tp' not in recall[diagram][cls]: 
                     recall[diagram][cls]['tp'] = 0
+
+            # Mapping degree
+            if cmp_degree:
+                for cls, cnt in tp_with_deg.items():
+                    if cls not in symbol_dict:
+                        continue
+                    if cls not in degree[diagram]:
+                        degree[diagram][cls] = {}
+                    degree[diagram][cls]['tp_with_deg'] = cnt   
+                    degree[diagram]['total']['tp_with_deg'] += cnt
+                for cls, cnt in tp.items():
+                    if cls not in symbol_dict:
+                        continue
+                    if cls not in degree[diagram]:
+                        degree[diagram][cls] = {}
+                    degree[diagram][cls]['tp'] = cnt
+                    degree[diagram]['total']['tp'] += cnt
+                    if 'tp_with_deg' not in degree[diagram][cls]: 
+                        degree[diagram][cls]['tp_with_deg'] = 0
                 
         return precision, recall, degree, recognition
 
@@ -282,13 +313,12 @@ class evaluate_from_xml():
         Arguments:
             symbol_type(text)은 'total', 'small' 또는 'large'
             dump_path: result.txt를 저장할 경로
+            cmp_degree: 각도 비교 여부
         
         """
 
         gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode='gt')
         dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode='dt')
-
-        print(dt_dict)
 
         symbol_dict = {}
         symbol_dict['total'] = self.__txt2dict(self.__symbol_txt_path['total'])
@@ -302,41 +332,61 @@ class evaluate_from_xml():
         mean['tp'] = 0
         mean['dt'] = 0
         mean['gt'] = 0
+        mean['tp_with_deg'] = 0
 
         Path(dump_path).mkdir(parents=True, exist_ok=True)
         result_file = open(f"{dump_path}\\result_{symbol_type}.txt", 'a')
         result_file.write(f"Symbol Type: {symbol_type}\n")
+        result_file.write(f"IoU Threshold: {self.__iou_thr}\n")
         
         for diagram in tqdm(gt_dict.keys(), "Writing"):
             result_file.write(f"\n")
-
             result_file.write(f'test drawing: {diagram}----------------------------------\n')
 
+            score = "precision"
             tp = precision[diagram]['total']['tp']
             dt = precision[diagram]['total']['dt']
             pr = tp / dt if dt != 0 else 0
-            result_file.write(f"total precision: {tp} / {dt} = {pr}\n")
+            result_file.write(f"total {score}: {tp} / {dt} = {pr}\n")
 
+            score = "recall"
             tp = recall[diagram]['total']['tp']
             gt = recall[diagram]['total']['gt']
             rc = tp / gt if gt != 0 else 0
-            result_file.write(f"total recall : {tp} / {gt} = {rc}\n")
+            result_file.write(f"total {score}: {tp} / {gt} = {rc}\n")
 
             mean['tp'] += tp
             mean['dt'] += dt
             mean['gt'] += gt
 
+            if cmp_degree:
+                score = "degree coreection ratio"
+                tp_with_deg = degree[diagram]['total']['tp_with_deg']
+                tp = degree[diagram]['total']['tp']
+                dg_ratio = tp_with_deg / tp if tp != 0 else 0
+                result_file.write(f"total {score}: {tp_with_deg} / {tp} = {dg_ratio}\n")
+            
+                mean['tp_with_deg'] += tp_with_deg
+
             for cls, num in symbol_dict.items():
                 if cls in recall[diagram]:
                     tp = recall[diagram][cls]['tp']
                     gt = recall[diagram][cls]['gt']
-                    result_file.write(f"class {num} (['{cls}']): {tp} / {gt}\n")
-            
-            result_file.write(f'\n')
+                    if cmp_degree and cls in degree[diagram]:
+                        tp_with_deg = degree[diagram][cls]['tp_with_deg']
+                        tp = degree[diagram][cls]['tp']
+                        result_file.write(f"class {num} (['{cls}']): {tp} / {gt}, {score}: {tp_with_deg} / {tp}\n")
+                    else: 
+                        result_file.write(f"class {num} (['{cls}']): {tp} / {gt}\n")            
+            result_file.write('\n')
 
         mean['precision'] = mean['tp'] / mean['dt'] if mean['dt'] != 0 else 0
         mean['recall'] = mean['tp'] / mean['gt'] if mean['gt'] != 0 else 0
-        result_file.write(f"(mean precision, mean recall) = ({mean['precision']}, {mean['recall']})")
+        result_file.write(f"(mean precision, mean recall) = ({mean['precision']}, {mean['recall']})\n")
+        
+        if cmp_degree:
+            mean['degree_correction_ratio'] = mean['tp_with_deg'] / mean['tp'] if mean['tp'] != 0 else 0
+            result_file.write(f"(mean degree correction ratio) = ({mean['degree_correction_ratio']})\n")
 
         result_file.close()
         return
@@ -384,8 +434,8 @@ gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls'
 dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls_after_rev'
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
 large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
-dump_path = 'D:\\Experiments\\Detections\\from_xml\\after_rev\\test_123_v2'
-visualize_path = 'D:\\Experiments\\Visualization\\from_xml\\after_rev\\test_123_v2'
+dump_path = 'D:\\Experiments\\Detections\\from_xml\\after_rev\\not_cmp_degree'
+visualize_path = 'D:\\Experiments\\Visualization\\from_xml\\before_rev\\test_123_v2'
 
 eval = evaluate_from_xml(
                 gt_xmls_path=gt_xmls_path,
@@ -393,5 +443,6 @@ eval = evaluate_from_xml(
                 symbol_txt_path=symbol_txt_path,
                 large_symbol_txt_path=large_symbol_txt_path,)
 eval.dump(dump_path=dump_path, 
-          symbol_type='total',)
-eval.visualize(gt_imgs_path, visualize_path, cls='all')
+          symbol_type='large',
+          cmp_degree=False,)
+# eval.visualize(gt_imgs_path, visualize_path, cls='all')
