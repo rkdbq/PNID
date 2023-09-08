@@ -116,7 +116,7 @@ class text_merge():
 
         remain_anns = self.__merge(self.__anntxts_path)
         for diagram, ann in tqdm(remain_anns.items(), "Writing"):
-            result_file = open(f"{write_path}/{diagram}.txt", 'a')
+            result_file = open(f"{write_path}/{diagram}.txt", 'w')
             for bbox in ann:
                 len = bbox.__len__()
                 if len == 10:
@@ -131,6 +131,6 @@ class text_merge():
 # pipeline
 
 dt_anntxts_path = 'D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles'
-write_path = 'D:\\Experiments\\Text_Merge\\roi_trans\\iof_20_mid'
+write_path = 'D:\\Experiments\\Text_Merge\\roi_trans\\iof_40_mid'
 
-merge = text_merge(dt_anntxts_path, iof_thr=0.2).write_ann(write_path)
+merge = text_merge(dt_anntxts_path, iof_thr=0.4).write_ann(write_path)

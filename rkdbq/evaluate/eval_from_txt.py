@@ -197,7 +197,7 @@ class evaluate_from_txt():
         mean['dt'] = 0
         mean['gt'] = 0
 
-        result_file = open(f"{dump_path}\\{model_name}_result.txt", 'a')
+        result_file = open(f"{dump_path}\\{model_name}_result.txt", 'w')
         result_file.write(f"IoU Threshold: {self.__iou_thr}\n")
         
         for diagram in tqdm(gt_dict.keys(), "Writing"):
