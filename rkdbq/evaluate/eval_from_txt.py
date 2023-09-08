@@ -258,7 +258,7 @@ class evaluate_from_txt():
                 dt_bbox = dt_item[0]
                 dt_points = self.__list2points(dt_bbox)
                 dt_cls = dt_item[1]
-                if dt_cls == cls:
+                if dt_cls == cls or cls == 'all':
                     for num in range(4):
                         cv2.line(vis_img, dt_points[(num + 0) % 4], dt_points[(num + 1) % 4], (0, 0, 255), 4)
 
@@ -266,7 +266,7 @@ class evaluate_from_txt():
                 gt_bbox = gt_item[0]
                 gt_points = self.__list2points(gt_bbox)
                 gt_cls = gt_item[1]
-                if gt_cls == cls:
+                if gt_cls == cls or cls == 'all':
                     for num in range(4):
                         cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 2)
 
@@ -276,15 +276,15 @@ class evaluate_from_txt():
 # pipeline
 
 gt_imgs_path = 'D:\\Data\PNID_DOTA_before_split\\test\\images'
-gt_anntxts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles'
-dt_anntxts_path = "D:\\Experiments\\Text_Merge\\roi_trans\\iof_20_mid"
+gt_anntxts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles_123'
+dt_anntxts_path = "D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles_123"
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-dump_path = 'D:\\Experiments\\Detections\\roi_trans\\merged\\iof_20_mid'
-visualize_path = 'D:\\Experiments\\Visualization\\roi_trans\\merged\\iof_20_mid'
+dump_path = 'D:\\Experiments\\Detections\\from_txt\\test_123'
+visualize_path = 'D:\\Experiments\\Visualization\\from_txt\\test_123'
 
 eval = evaluate_from_txt(
                 gt_txts_path=gt_anntxts_path,
                 dt_txts_path=dt_anntxts_path,
                 symbol_txt_path=symbol_txt_path,)
 eval.dump(dump_path, 'roi_trans')
-# eval.visualize(gt_imgs_path, visualize_path)
+eval.visualize(gt_imgs_path, visualize_path, cls = 'all')
