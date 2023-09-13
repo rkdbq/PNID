@@ -8,6 +8,8 @@ class text_merge():
     def __init__(self, anntxts_path: str, iof_thr: float = 0.8):
         self.__anntxts_path = anntxts_path
         self.__iof_thr = iof_thr
+        self.__horizontal_iof_thr = 0.1
+        self.__y_diff_thr = 0.1
 
     def __cal_iof(self, remain_points: tuple, remove_points: tuple):
         coords = self.__list2points(remain_points)
@@ -94,14 +96,23 @@ class text_merge():
                     if remain_cls == 'text' and remove_cls == 'text':
                         remain_points = remain_bbox[0:8]
                         remove_points = remove_bbox[0:8]
+                        remain_y = {}
+                        remove_y = {}
+                        remain_y['min'] = min(remain_points[1::2])
+                        remain_y['max'] = max(remain_points[1::2])
+                        remove_y['min'] = min(remove_points[1::2])
+                        remove_y['max'] = max(remove_points[1::2])
+                        ymin_diff = abs(remain_y['min'] - remove_y['min'])
+                        ymax_diff = abs(remain_y['max'] - remove_y['max'])
                         iof = self.__cal_iof(remain_points, remove_points)
-                        if iof > self.__iof_thr:
+                        if (iof > self.__iof_thr) or (ymin_diff < self.__y_diff_thr and ymax_diff < self.__y_diff_thr and iof > self.__horizontal_iof_thr):
                             merged_bbox = self.__get_merged_points(remain_bbox, remove_bbox)
                             remain_ann.add(merged_bbox)
                             if remove_bbox in remain_ann:
                                 remain_ann.remove(remove_bbox)
                             if remain_bbox in remain_ann:
                                 remain_ann.remove(remain_bbox)
+                        
         return remain_ann
     
     def __merge(self, ann_dir_path: str):
@@ -130,7 +141,7 @@ class text_merge():
 
 # pipeline
 
-dt_anntxts_path = 'D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles'
-write_path = 'D:\\Experiments\\Text_Merge\\roi_trans\\iof_40_mid'
+dt_anntxts_path = 'D:\\Experiments\\Detections\\roi_trans\\annfiles'
+write_path = 'D:\\Experiments\\Text_Merge\\roi_trans\\iof_30_with_y_diff'
 
-merge = text_merge(dt_anntxts_path, iof_thr=0.4).write_ann(write_path)
+merge = text_merge(dt_anntxts_path, iof_thr=0.3).write_ann(write_path)
