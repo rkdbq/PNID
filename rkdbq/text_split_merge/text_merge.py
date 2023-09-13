@@ -5,11 +5,11 @@ from pathlib import Path
 from tqdm import tqdm
 
 class text_merge():
-    def __init__(self, anntxts_path: str, iof_thr: float = 0.8):
+    def __init__(self, anntxts_path: str, iof_thr: float = 0.3, y_diff_iof_thr: float = 0.1, y_diff_thr: int = 5):
         self.__anntxts_path = anntxts_path
         self.__iof_thr = iof_thr
-        self.__horizontal_iof_thr = 0.1
-        self.__y_diff_thr = 0.1
+        self.__y_diff_iof_thr = y_diff_iof_thr
+        self.__y_diff_thr = y_diff_thr
 
     def __cal_iof(self, remain_points: tuple, remove_points: tuple):
         coords = self.__list2points(remain_points)
@@ -64,11 +64,11 @@ class text_merge():
 
         mid = {}
         coords = {}
-        coords['x'] = (remain_points[0] + remain_points[2] + remain_points[4] + remain_points[6]) / 4
-        coords['y'] = (remain_points[1] + remain_points[3] + remain_points[5] + remain_points[7]) / 4
+        coords['x'] = (sum(remain_points[0::2])) / 4
+        coords['y'] = (sum(remain_points[1::2])) / 4
         mid['remain'] = coords
-        coords['x'] = (remove_points[0] + remove_points[2] + remove_points[4] + remove_points[6]) / 4
-        coords['y'] = (remove_points[1] + remove_points[3] + remove_points[5] + remove_points[7]) / 4
+        coords['x'] = (sum(remove_points[0::2])) / 4
+        coords['y'] = (sum(remove_points[1::2])) / 4
         mid['remove'] = coords
         mid['merged'] = {'x': (mid['remain']['x'] + mid['remove']['x']) / 2,
                          'y': (mid['remain']['y'] + mid['remove']['y']) / 2,}
@@ -102,10 +102,12 @@ class text_merge():
                         remain_y['max'] = max(remain_points[1::2])
                         remove_y['min'] = min(remove_points[1::2])
                         remove_y['max'] = max(remove_points[1::2])
-                        ymin_diff = abs(remain_y['min'] - remove_y['min'])
-                        ymax_diff = abs(remain_y['max'] - remove_y['max'])
+                        ymin_diff = abs(float(remain_y['min']) - float(remove_y['min']))
+                        ymax_diff = abs(float(remain_y['max']) - float(remove_y['max']))
                         iof = self.__cal_iof(remain_points, remove_points)
-                        if (iof > self.__iof_thr) or (ymin_diff < self.__y_diff_thr and ymax_diff < self.__y_diff_thr and iof > self.__horizontal_iof_thr):
+                        horizontal_intersect = ymin_diff < self.__y_diff_thr and ymax_diff < self.__y_diff_thr and iof > self.__y_diff_iof_thr
+                        horizontal_intersect = False
+                        if iof > self.__iof_thr or horizontal_intersect:
                             merged_bbox = self.__get_merged_points(remain_bbox, remove_bbox)
                             remain_ann.add(merged_bbox)
                             if remove_bbox in remain_ann:
@@ -144,4 +146,4 @@ class text_merge():
 dt_anntxts_path = 'D:\\Experiments\\Detections\\roi_trans\\annfiles'
 write_path = 'D:\\Experiments\\Text_Merge\\roi_trans\\iof_30_with_y_diff'
 
-merge = text_merge(dt_anntxts_path, iof_thr=0.3).write_ann(write_path)
+merge = text_merge(dt_anntxts_path).write_ann(write_path)
