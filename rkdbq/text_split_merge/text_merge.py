@@ -106,7 +106,6 @@ class text_merge():
                         ymax_diff = abs(float(remain_y['max']) - float(remove_y['max']))
                         iof = self.__cal_iof(remain_points, remove_points)
                         horizontal_intersect = ymin_diff < self.__y_diff_thr and ymax_diff < self.__y_diff_thr and iof > self.__y_diff_iof_thr
-                        horizontal_intersect = False
                         if iof > self.__iof_thr or horizontal_intersect:
                             merged_bbox = self.__get_merged_points(remain_bbox, remove_bbox)
                             remain_ann.add(merged_bbox)
