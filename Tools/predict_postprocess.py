@@ -91,7 +91,7 @@ recog_result = eval.calculate_recognition(gt_dt_result.gt_result, gt_dt_result.d
 eval.dump_pr_and_ap_result(pr_result, ap_result_str, recog_result, gt_dt_result.symbol_dict, score_type='tp')
 eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_result, gt_dt_result.symbol_dict, score_type='tp')
 eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_result, gt_dt_result.symbol_dict, recognized_only=True, score_type='tp')
-eval.label_cropped_image(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, gt_dt_result.symbol_dict, drawing_dir)
+# eval.label_cropped_image(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, gt_dt_result.symbol_dict, drawing_dir)
 
 # # --- (include_text_as_class == True 인 경우) Text recognition 수행 (오래걸림)
 # if include_text_as_class == True:
