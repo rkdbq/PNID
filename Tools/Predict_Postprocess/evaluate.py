@@ -162,7 +162,69 @@ class evaluate():
                         idx += 1
                     cv.imwrite(write_path, cropped)
 
-    def dump_match_recognition_result(self, gt_result, dt_result, gt_to_dt_match_dict, recognition_result, symbol_dict, recognized_only = False):
+    def visualize_recog_image(self, gt_result, dt_result, gt_to_dt_match_dict, symbol_dict, imgs_path):
+        """ Recognition 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
+
+        Arguments:
+            gt_result (dict): 도면 이름을 key로, box들을 value로 갖는 gt dict
+            dt_result (dict): 도면 이름을 key로, box들을 value로 갖는 dt dict
+            gt_to_dt_match_dict (dict): gt의 심볼 index를 key로, 매칭된 dt의 심볼 index를 value로 갖는 dict
+            recognition_result (dict): 도면 이름을 key로, 각 도면에서의 text recognition 계산에 필요한 정보들(recog_num, gt_text_num)을 저장한 dict
+            symbol_dict (dict): 심볼 이름을 key로, id를 value로 갖는 dict
+        Returns:
+            None
+        """
+
+        for filename, gt_values in gt_result.items():
+            img_path = f"{imgs_path}{filename}.jpg"
+            if not os.path.exists(img_path): continue
+            print(f"{imgs_path}{filename}.jpg")
+
+            Path(f"{self.output_dir}/visualized/{filename}").mkdir(parents=True, exist_ok=True)
+            Path(f"{self.output_dir}/dt_only_cropped/{filename}").mkdir(parents=True, exist_ok=True)
+
+            diagram_img = cv.imread(img_path)
+
+            for gt_index, gt_value in enumerate(gt_values):
+                dt_value = {}
+                if gt_index in gt_to_dt_match_dict[filename]:
+                    dt_value = dt_result[filename][gt_to_dt_match_dict[filename][gt_index]]
+                
+                if 'category_id' not in gt_value: continue
+                if 'category_id' not in dt_value: continue
+                if gt_value['category_id'] != (symbol_dict['text'] or symbol_dict['text']): continue
+                if dt_value['category_id'] != (symbol_dict['text'] or symbol_dict['text']): continue
+
+                if gt_value['text'] == '': continue 
+                if 'bbox' not in dt_value: dt_value['bbox'] = [-1, -1, -1, -1]
+                if 'text' not in dt_value: dt_value['text'] = '검출 실패'
+                if dt_value['bbox'] == []: dt_value['bbox'] = [-1, -1, -1, -1]
+                if dt_value['text'] == '': dt_value['text'] = '텍스트 인식 실패'
+
+                if(gt_value['text'] == dt_value['text']): # recog 성공
+                    dt_pos = dt_value['bbox']
+                    cropped = diagram_img[dt_pos[1]:dt_pos[1]+dt_pos[3], dt_pos[0]:dt_pos[0]+dt_pos[2]]
+                    jpg_name = str.replace(dt_value['text'], '/', '$')
+                    write_path = f"{self.output_dir}/tp_cropped/{filename}/{jpg_name}.jpg"
+                    idx = 1
+                    while True:
+                        if not os.path.exists(write_path): break
+                        write_path = f"{self.output_dir}/tp_cropped/{filename}/{jpg_name}({idx}).jpg"
+                        idx += 1
+                    cv.imwrite(write_path, cropped)
+                else: # dt 성공, recog 실패
+                    dt_pos = dt_value['bbox']
+                    cropped = diagram_img[dt_pos[1]:dt_pos[1]+dt_pos[3], dt_pos[0]:dt_pos[0]+dt_pos[2]]
+                    jpg_name = str.replace(dt_value['text'], '/', '$')
+                    write_path = f"{self.output_dir}/dt_only_cropped/{filename}/{jpg_name}.jpg"
+                    idx = 1
+                    while True:
+                        if not os.path.exists(write_path): break
+                        write_path = f"{self.output_dir}/dt_only_cropped/{filename}/{jpg_name}({idx}).jpg"
+                        idx += 1
+                    cv.imwrite(write_path, cropped)
+
+    def dump_match_recognition_result(self, gt_result, dt_result, gt_to_dt_match_dict, recognition_result, symbol_dict, recognized_only = False, score_type = "gt"):
         """ Recognition 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
 
         Arguments:
@@ -180,16 +242,19 @@ class evaluate():
 
         with open(outpath, 'w') as f:
             mean_recog_ratio = 0
-            mean_recog_ratio_rotated = 0
             total_gt_text_num = 0
-            total_gt_text_num_rotated = 0
 
             for filename, gt_values in gt_result.items():
                 f.write(f"test drawing : {filename}----------------------------------\n")
-                recog_values = recognition_result[0][filename]
-                recog_values_rotated = recognition_result[1][filename]
-                f.write(f"total recognition ratio: {recog_values['recognized_num']} / {recog_values['all_gt_text_num']} = {recog_values['recognition']}\n")
-                f.write(f"total recognition ratio (rotated): {recog_values_rotated['recognized_num']} / {recog_values_rotated['all_gt_text_num']} = {recog_values_rotated['recognition']}\n")
+                recog_values = recognition_result[filename]
+                if score_type == "gt":
+                    f.write(f"total recognition ratio: {recog_values['recognized_num']} / {recog_values['all_gt_text_num']} = {recog_values['recognition']}\n")
+                elif score_type == "tp":
+                    ratio = 0
+                    if recog_values['all_tp_text_num'] != 0:
+                        ratio = recog_values['recognized_num'] / recog_values['all_tp_text_num']
+                    f.write(f"total recognition ratio: {recog_values['recognized_num']} / {recog_values['all_tp_text_num']} = {ratio}\n")
+                    ratio = 0
 
                 for gt_index, gt_value in enumerate(gt_values):
                     dt_value = {}
@@ -204,21 +269,18 @@ class evaluate():
 
                     cls = ''
                     if gt_value['category_id'] == symbol_dict['text']: cls = 'text'
-                    elif gt_value['category_id'] == symbol_dict['text_rotated']: cls = 'text_rotated'
+                    elif gt_value['category_id'] == symbol_dict['text_rotated']: cls = 'text'
                     if(gt_value['text'] == dt_value['text'] or not recognized_only):
                         f.write(f"{cls}| Detected: {dt_value['bbox']}, '{dt_value['text']}', GT: {gt_value['bbox']}, '{gt_value['text']}'\n")
 
                 mean_recog_ratio += recog_values['recognized_num']
                 total_gt_text_num += recog_values['all_gt_text_num']
-                mean_recog_ratio_rotated += recog_values_rotated['recognized_num']
-                total_gt_text_num_rotated += recog_values_rotated['all_gt_text_num']
                 f.write("\n")
 
             mean_recog_ratio /= total_gt_text_num
-            mean_recog_ratio_rotated /= total_gt_text_num_rotated
-            f.write(f"(mean recognition ratio, mean recognition ratio (rotated)) = ({mean_recog_ratio}, {mean_recog_ratio_rotated})")
+            f.write(f"(mean recognition ratio) = ({mean_recog_ratio})")
 
-    def dump_pr_and_ap_result(self, pr_result, ap_result_str, recognition_result, symbol_dict, ap_result_only_sym_str=None):
+    def dump_pr_and_ap_result(self, pr_result, ap_result_str, recognition_result, symbol_dict, ap_result_only_sym_str=None, score_type = 'gt'):
         """ AP와 PR 계산 결과를 파일로 출력. test 내에 존재하는 모든 도면에 대해 한 파일로 한꺼번에 출력함
 
         Arguments:
@@ -236,9 +298,7 @@ class evaluate():
             mean_precision = 0
             mean_recall = 0
             mean_recog_ratio = 0
-            mean_recog_ratio_rotated = 0
             total_gt_text_num = 0
-            total_gt_text_num_rotated = 0
 
             if write_only_sym_reslt:
                 text_classes_list = []
@@ -256,17 +316,20 @@ class evaluate():
                 f.write(f"total precision : {values['detected_num']} / {values['all_prediction_num']} = {values['precision']}\n")
                 f.write(f"total recall : {values['detected_num']} / {values['all_gt_num']} = {values['recall']}\n")
 
-                recog_values = recognition_result[0][filename]
-                recog_values_rotated = recognition_result[1][filename]
-                f.write(f"total recognition ratio: {recog_values['recognized_num']} / {recog_values['all_gt_text_num']} = {recog_values['recognition']}\n")
-                f.write(f"total recognition ratio (rotated): {recog_values_rotated['recognized_num']} / {recog_values_rotated['all_gt_text_num']} = {recog_values_rotated['recognition']}\n")
+                recog_values = recognition_result[filename]
+                if score_type == 'gt':
+                    f.write(f"total recognition ratio: {recog_values['recognized_num']} / {recog_values['all_gt_text_num']} = {recog_values['recognition']}\n")
+                elif score_type == 'tp':
+                    ratio = 0
+                    if recog_values['all_tp_text_num'] != 0:
+                        ratio = recog_values['recognized_num'] / recog_values['all_tp_text_num']
+                    f.write(f"total recognition ratio: {recog_values['recognized_num']} / {recog_values['all_tp_text_num']} = {ratio}\n")
+                    ratio = 0
 
                 mean_precision += values['precision']
                 mean_recall += values['recall']
                 mean_recog_ratio += recog_values['recognized_num']
-                mean_recog_ratio_rotated += recog_values_rotated['recognized_num']
                 total_gt_text_num += recog_values['all_gt_text_num']
-                total_gt_text_num_rotated += recog_values_rotated['all_gt_text_num']
 
                 if write_only_sym_reslt:
                     only_sym_detected_num = values['detected_num']
@@ -317,7 +380,6 @@ class evaluate():
             mean_precision /= len(pr_result.keys())
             mean_recall /= len(pr_result.keys())
             mean_recog_ratio /= total_gt_text_num
-            mean_recog_ratio_rotated /= total_gt_text_num_rotated
 
             ap_strs = ap_result_str.splitlines()[0].split(" ")
             ap = float(ap_strs[len(ap_strs)-1])
@@ -326,7 +388,7 @@ class evaluate():
             ap_75_strs = ap_result_str.splitlines()[2].split(" ")
             ap_75 = float(ap_75_strs[len(ap_75_strs) - 1])
 
-            f.write(f"(mean precision, mean recall, mean recognition ratio, mean recognition ratio (rotated) ap, ap50, ap75) = ({mean_precision}, {mean_recall}, {mean_recog_ratio}, {mean_recog_ratio_rotated}, {ap}, {ap_50}, {ap_75})")
+            f.write(f"(mean precision, mean recall, mean recognition ratio, ap, ap50, ap75) = ({mean_precision}, {mean_recall}, {mean_recog_ratio}, {ap}, {ap_50}, {ap_75})")
 
     def calculate_ap(self, gt_result_json, dt_result, ignore_class_list=None):
         """ COCOeval을 사용한 AP계산. 중간 과정으로 gt와 dt에 대한 json파일이 out_dir에 생성됨
@@ -434,7 +496,7 @@ class evaluate():
 
         return pr_result
     
-    def calculate_recognition(self, gt_result, dt_result, gt_to_dt_match_dict, text_symbol_num):
+    def calculate_recognition(self, gt_result, dt_result, gt_to_dt_match_dict):
         """ 전체 test 도면에 대한 recognition 계산
 
         Arguments:
@@ -451,17 +513,21 @@ class evaluate():
         for filename, gt_to_dt_match in gt_to_dt_match_dict.items():
             recog_count = 0
             gt_text_count = 0
+            tp_text_count = 0
             for gt_id, dt_id in gt_to_dt_match.items():
-                if gt_result[filename][gt_id]['category_id'] != text_symbol_num: continue
-                if dt_result[filename][dt_id]['category_id'] != text_symbol_num: continue
+                gt_category = gt_result[filename][gt_id]['category_id']
+                if gt_category != 499 or gt_category != 500: continue
+                dt_category = dt_result[filename][dt_id]['category_id']
+                if dt_category != 499 or dt_category != 500: continue
                 if 'text' not in dt_result[filename][dt_id]: continue
-                if gt_result[filename][gt_id]['text'] == dt_result[filename][dt_id]['text']: recog_count += 1
+                tp_text_count += 1
+                if gt_result[filename][gt_id]['text'] == dt_result[filename][dt_id]['text']: 
+                    recog_count += 1
 
             for gt_value in gt_result[filename]:
-                if gt_value['category_id'] == text_symbol_num: gt_text_count += 1 
+                if gt_value['category_id'] == 499 or gt_value['category_id'] == 500: gt_text_count += 1 
             
-            recognition_result[filename] = {"all_gt_text_num" : gt_text_count, "recognized_num" : recog_count, "recognition" : recog_count / gt_text_count}
-
+            recognition_result[filename] = {"all_gt_text_num" : gt_text_count, "all_tp_text_num": tp_text_count, "recognized_num" : recog_count, "recognition" : recog_count / gt_text_count}
         return recognition_result
 
     def get_gt_img_id_from_filename(self, filename, gt_result_json):
