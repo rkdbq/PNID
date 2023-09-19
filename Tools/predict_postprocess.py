@@ -15,11 +15,11 @@ import time
 current_datetime = datetime.datetime.now()
 datetime_string = current_datetime.strftime("%Y-%m-%d_%H%M%S")
 
-gt_json_filepath = "C:\\Codes\\VCLab\\Data\\GT_json\\test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
-dt_json_filepath = "C:\\Codes\\VCLab\\Data\\DT_json\\results.bbox_rec_lossx10.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
-output_dir = f"C:\\Codes\\VCLab\\Experiments\\Recognitions\\{datetime_string}\\"  # 출력 파일들이 저장될 폴더
+gt_json_filepath = "D:\\Data\\GT_json\\test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
+dt_json_filepath = "D:\\Data\\DT_json\\results_new_fixed_resnet.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
+output_dir = f"D:\\Experiments\\Recognitions\\results_new_fixed_resnet\\"  # 출력 파일들이 저장될 폴더
 
-data_root = 'C:\\Codes\\VCLab\\Data\\PNID_RAW\\'
+data_root = 'D:\\Data\\PNID_RAW\\'
 drawing_dir = data_root + "Drawing\\JPG\\"  # 원본 도면 이미지 폴더
 symbol_xml_dir = data_root +"SymbolXML"  # 원본 도면 이미지와 함께 제공된 Symbol XML 폴더
 text_xml_dir = data_root +"TextXML"  # 원본 도면 이미지와 함께 제공된 Text XML 폴더
@@ -85,12 +85,12 @@ gt_to_dt_match_dict, dt_to_gt_match_dict = eval.compare_gt_and_dt(gt_dt_result.g
 #   : 위에서 얻은 정보들을 바탕으로 성능 계산(주의! AP 계산에는 NMS 하기 전의 결과가 전달되어야 함 (gt_dt_result.dt_result))
 pr_result = eval.calculate_pr(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict)
 ap_result_str = eval.calculate_ap(gt_dt_result.gt_result_json, gt_dt_result.dt_result)
-recog_result = eval.calculate_recognition(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, 499)
-recog_result_rotated = eval.calculate_recognition(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, 500)
-recog_results = [recog_result, recog_result_rotated]
-eval.dump_pr_and_ap_result(pr_result, ap_result_str, recog_results, gt_dt_result.symbol_dict)
-eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_results, gt_dt_result.symbol_dict)
-eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_results, gt_dt_result.symbol_dict, recognized_only=True)
+recog_result = eval.calculate_recognition(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict)
+# recog_result_rotated = eval.calculate_recognition(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, 500)
+# recog_results = [recog_result, recog_result_rotated]
+eval.dump_pr_and_ap_result(pr_result, ap_result_str, recog_result, gt_dt_result.symbol_dict, score_type='tp')
+eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_result, gt_dt_result.symbol_dict, score_type='tp')
+eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_result, gt_dt_result.symbol_dict, recognized_only=True, score_type='tp')
 eval.label_cropped_image(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, gt_dt_result.symbol_dict, drawing_dir)
 
 # # --- (include_text_as_class == True 인 경우) Text recognition 수행 (오래걸림)
