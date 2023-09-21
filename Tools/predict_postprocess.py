@@ -18,7 +18,6 @@ datetime_string = current_datetime.strftime("%Y-%m-%d_%H%M%S")
 gt_json_filepath = "D:\\Data\\GT_json\\test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
 dt_json_filepath = "D:\\Data\\DT_json\\results_new_fixed_resnet.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
 output_dir = f"D:\\Experiments\\Recognitions\\results_new_fixed_resnet_retest_tp\\"  # 출력 파일들이 저장될 폴더
-score_type = 'tp'
 
 data_root = 'D:\\Data\\PNID_RAW\\'
 drawing_dir = data_root + "Drawing\\JPG\\"  # 원본 도면 이미지 폴더
@@ -38,8 +37,13 @@ symbol_type_filepath = data_root +"Hyundai_SymbolClass_Type.txt"  # 심볼이름
 # symbol_filepath = data_root +"Hyundai_SymbolClass_Sym_Only.txt"  # (방향 제거된) symbol index txt 파일 경로
 # symbol_type_filepath = data_root +"Hyundai_SymbolClass_Type.txt"  # 심볼이름-타입 매칭 txt
 
+
+######################### CONFIG TO RECOGNITION ######################### 
 include_text_as_class = True
 include_text_orientation_as_class = False
+score_type = 'tp'
+#########################################################################
+
 stride_w = 300  # 학습 도면 분할시에 사용한 stride
 stride_h = 300
 drawing_resize_scale = 0.5 # 학습 도면 분할시에 사용한 scaling factor (절반 크기로 줄였으면 0.5)
