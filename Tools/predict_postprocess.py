@@ -17,7 +17,8 @@ datetime_string = current_datetime.strftime("%Y-%m-%d_%H%M%S")
 
 gt_json_filepath = "D:\\Data\\GT_json\\test.json"  # 학습 도면 분할시 생성한 test.json 파일 경로
 dt_json_filepath = "D:\\Data\\DT_json\\results_new_fixed_resnet.json"  # prediction 결과로 mmdetection에서 생성된 json 파일 경로
-output_dir = f"D:\\Experiments\\Recognitions\\results_new_fixed_resnet_gt_2\\"  # 출력 파일들이 저장될 폴더
+output_dir = f"D:\\Experiments\\Recognitions\\results_new_fixed_resnet_retest_tp\\"  # 출력 파일들이 저장될 폴더
+score_type = 'tp'
 
 data_root = 'D:\\Data\\PNID_RAW\\'
 drawing_dir = data_root + "Drawing\\JPG\\"  # 원본 도면 이미지 폴더
@@ -88,9 +89,9 @@ ap_result_str = eval.calculate_ap(gt_dt_result.gt_result_json, gt_dt_result.dt_r
 recog_result = eval.calculate_recognition(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict)
 # recog_result_rotated = eval.calculate_recognition(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, 500)
 # recog_results = [recog_result, recog_result_rotated]
-eval.dump_pr_and_ap_result(pr_result, ap_result_str, recog_result, gt_dt_result.symbol_dict, score_type='gt')
-eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_result, gt_dt_result.symbol_dict, score_type='gt')
-eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_result, gt_dt_result.symbol_dict, recognized_only=True, score_type='gt')
+eval.dump_pr_and_ap_result(pr_result, ap_result_str, recog_result, gt_dt_result.symbol_dict, score_type=score_type)
+eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_result, gt_dt_result.symbol_dict, score_type=score_type)
+eval.dump_match_recognition_result(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, recog_result, gt_dt_result.symbol_dict, recognized_only=True, score_type=score_type)
 # eval.label_cropped_image(gt_dt_result.gt_result, gt_dt_result.dt_result_after_nms, gt_to_dt_match_dict, gt_dt_result.symbol_dict, drawing_dir)
 
 # # --- (include_text_as_class == True 인 경우) Text recognition 수행 (오래걸림)
