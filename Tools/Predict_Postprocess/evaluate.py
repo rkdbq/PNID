@@ -299,6 +299,7 @@ class evaluate():
             mean_recall = 0
             mean_recog_ratio = 0
             total_gt_text_num = 0
+            total_tp_text_num = 0
 
             if write_only_sym_reslt:
                 text_classes_list = []
@@ -330,6 +331,7 @@ class evaluate():
                 mean_recall += values['recall']
                 mean_recog_ratio += recog_values['recognized_num']
                 total_gt_text_num += recog_values['all_gt_text_num']
+                total_tp_text_num += recog_values['all_tp_text_num']
 
                 if write_only_sym_reslt:
                     only_sym_detected_num = values['detected_num']
@@ -379,7 +381,8 @@ class evaluate():
 
             mean_precision /= len(pr_result.keys())
             mean_recall /= len(pr_result.keys())
-            mean_recog_ratio /= total_gt_text_num
+            if score_type == 'gt': mean_recog_ratio /= total_gt_text_num
+            else: mean_recog_ratio /= total_tp_text_num
 
             ap_strs = ap_result_str.splitlines()[0].split(" ")
             ap = float(ap_strs[len(ap_strs)-1])
@@ -516,9 +519,9 @@ class evaluate():
             tp_text_count = 0
             for gt_id, dt_id in gt_to_dt_match.items():
                 gt_category = gt_result[filename][gt_id]['category_id']
-                if gt_category != 499 or gt_category != 500: continue
+                if gt_category != 499 and gt_category != 500: continue
                 dt_category = dt_result[filename][dt_id]['category_id']
-                if dt_category != 499 or dt_category != 500: continue
+                if dt_category != 499 and dt_category != 500: continue
                 if 'text' not in dt_result[filename][dt_id]: continue
                 tp_text_count += 1
                 if gt_result[filename][gt_id]['text'] == dt_result[filename][dt_id]['text']: 
