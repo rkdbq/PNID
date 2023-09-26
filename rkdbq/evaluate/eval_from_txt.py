@@ -21,7 +21,7 @@ class evaluate_from_txt():
             confi = float(info[1])
             points = [round(float(i)) for i in info[2:10]]
             if confi < confi_thr: continue
-            annfile = open(f"{diagramtxt_dir_path}/{diagram}.txt", 'a+')
+            annfile = open(f"{diagramtxt_dir_path}\\{diagram}.txt", 'a+')
             annfile.write(f"{' '.join(map(str, points))} {cls}\n")
             annfile.close()
         return
