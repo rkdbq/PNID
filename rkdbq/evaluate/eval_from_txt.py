@@ -12,6 +12,32 @@ class evaluate_from_txt():
         self.__symbol_txt_path = symbol_txt_path
         self.__iou_thr = iou_thr
 
+    def __classtxt2diagramtxt(self, cls: str, classtxt_path: str, diagramtxt_dir_path: str, confi_thr: float = 0.5):
+        
+        file = open(classtxt_path, 'r')
+        for line in file:
+            info = line.split()
+            diagram = info[0]
+            confi = float(info[1])
+            points = [round(float(i)) for i in info[2:10]]
+            if confi < confi_thr: continue
+            annfile = open(f"{diagramtxt_dir_path}/{diagram}.txt", 'a+')
+            annfile.write(f"{' '.join(map(str, points))} {cls}\n")
+            annfile.close()
+        return
+    
+    def classtxts2diagramtxts(self, classtxt_dir_path: str, diagramtxt_dir_path: str):
+
+        Path(diagramtxt_dir_path).mkdir(parents=True, exist_ok=True)
+
+        for root, dirs, files in os.walk(classtxt_dir_path):
+            for filename in tqdm(files, "Class to Diagram"):
+                if filename.startswith('Task1') and filename.endswith('.txt'):
+                    cls = filename.replace("Task1_", "").replace(".txt", "")
+                    classtxt_path = os.path.join(root, filename)
+                    self.__classtxt2diagramtxt(cls, classtxt_path, diagramtxt_dir_path)
+        return 
+
     def __txt2dict(self, txt_path: str, split_word: str = '|'):
         """ txt 파일을 딕셔너리로 파싱
         
@@ -91,7 +117,7 @@ class evaluate_from_txt():
         precision = {}
         recall = {}
 
-        for diagram in tqdm(gt_dict.keys(), f"Evaluating"):
+        for diagram in tqdm(gt_dict.keys(), "Evaluating"):
             precision[diagram] = {}
             precision[diagram]['total'] = {}
             precision[diagram]['total']['tp'] = 0
@@ -287,4 +313,7 @@ eval = evaluate_from_txt(
                 dt_txts_path=dt_anntxts_path,
                 symbol_txt_path=symbol_txt_path,)
 eval.dump(dump_path, 'roi_trans')
-eval.visualize(gt_imgs_path, visualize_path, cls = 'all')
+eval.visualize(gt_imgs_path, visualize_path, cls = 'all')    classtxt_dir_path=classtxt_dir_path,
+    diagramtxt_dir_path=dt_anntxts_path,
+)
+# eval.dump(dump_path, 'roi_trans')
