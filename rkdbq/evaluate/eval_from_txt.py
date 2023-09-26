@@ -301,9 +301,10 @@ class evaluate_from_txt():
 
 # pipeline
 
+classtxt_dir_path = ''
 gt_imgs_path = 'D:\\Data\PNID_DOTA_before_split\\test\\images'
 gt_anntxts_path = 'D:\\Data\PNID_DOTA_before_split\\test\\annfiles_123'
-dt_anntxts_path = "D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles_123"
+dt_anntxts_path = 'D:\\Experiments\\Detections\\Diagrams\\roi_trans\\annfiles_123'
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
 dump_path = 'D:\\Experiments\\Detections\\from_txt\\test_123'
 visualize_path = 'D:\\Experiments\\Visualization\\from_txt\\test_123'
@@ -311,9 +312,12 @@ visualize_path = 'D:\\Experiments\\Visualization\\from_txt\\test_123'
 eval = evaluate_from_txt(
                 gt_txts_path=gt_anntxts_path,
                 dt_txts_path=dt_anntxts_path,
-                symbol_txt_path=symbol_txt_path,)
-eval.dump(dump_path, 'roi_trans')
-eval.visualize(gt_imgs_path, visualize_path, cls = 'all')    classtxt_dir_path=classtxt_dir_path,
+                symbol_txt_path=symbol_txt_path,
+                )
+
+eval.classtxts2diagramtxts(
+    classtxt_dir_path=classtxt_dir_path,
     diagramtxt_dir_path=dt_anntxts_path,
 )
 # eval.dump(dump_path, 'roi_trans')
+# eval.visualize(gt_imgs_path, visualize_path, cls = 'all')
