@@ -412,7 +412,7 @@ class evaluate_from_xml():
                 dt_bbox = dt_item['bndbox']
                 dt_points = self.__dict2points(dt_bbox)
                 dt_cls = dt_item['class']
-                if dt_cls == cls or cls == 'all':
+                if dt_cls == cls or cls == 'total':
                     for num in range(4):
                         cv2.line(vis_img, dt_points[(num + 0) % 4], dt_points[(num + 1) % 4], (0, 0, 255), 4)
 
@@ -420,7 +420,7 @@ class evaluate_from_xml():
                 gt_bbox = gt_item['bndbox']
                 gt_points = self.__dict2points(gt_bbox)
                 gt_cls = gt_item['class']
-                if gt_cls == cls or cls == 'all':
+                if gt_cls == cls or cls == 'total':
                     for num in range(4):
                         cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 2)
 
@@ -429,20 +429,22 @@ class evaluate_from_xml():
 
 # pipeline
 
-gt_imgs_path = 'D:\\Data\PNID_DOTA_before_split\\test\\images'
-gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls'
-dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls_after_rev'
+gt_imgs_path = 'D:\\Data\\PNID_RAW\\Drawing\\JPG_123'
+gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls_first_year_123'
+dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls_first_year_123'
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
 large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
-dump_path = 'D:\\Experiments\\Detections\\from_xml\\after_rev\\not_cmp_degree'
-visualize_path = 'D:\\Experiments\\Visualization\\from_xml\\before_rev\\test_123_v2'
+dump_path = 'D:\\Experiments\\Detections\\from_xml\\first_year_123_50'
+visualize_path = 'D:\\Experiments\\Visualization\\from_xml\\first_year_123_50'
 
 eval = evaluate_from_xml(
                 gt_xmls_path=gt_xmls_path,
                 dt_xmls_path=dt_xmls_path,
                 symbol_txt_path=symbol_txt_path,
-                large_symbol_txt_path=large_symbol_txt_path,)
+                large_symbol_txt_path=large_symbol_txt_path,
+                iou_thr=0.5
+                )
 eval.dump(dump_path=dump_path, 
-          symbol_type='large',
+          symbol_type='total',
           cmp_degree=False,)
-# eval.visualize(gt_imgs_path, visualize_path, cls='all')
+eval.visualize(gt_imgs_path, visualize_path, cls='total')
