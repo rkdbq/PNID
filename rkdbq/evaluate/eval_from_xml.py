@@ -317,6 +317,8 @@ class evaluate_from_xml():
         
         """
 
+        Path(dump_path).mkdir(parents=True, exist_ok=True)
+        
         gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode='gt')
         dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode='dt')
 
