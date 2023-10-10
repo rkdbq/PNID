@@ -198,10 +198,10 @@ class evaluate_from_xml():
             degree[diagram]['total'] = {}
             degree[diagram]['total']['tp_with_deg'] = 0
             degree[diagram]['total']['tp'] = 0
-            # recognition[diagram] = {}
-            # recognition[diagram]['total'] = {}
-            # recognition[diagram]['total']['tp_with_recog'] = 0
-            # recognition[diagram]['total']['tp'] = 0
+            recognition[diagram] = {}
+            recognition[diagram]['total'] = {}
+            recognition[diagram]['total']['tp_with_recog'] = 0
+            recognition[diagram]['total']['tp'] = 0
             if diagram not in dt_dict: 
                 print(f'{diagram} is skipped. (NOT exist in detection xmls path)\n')
                 continue
@@ -209,7 +209,7 @@ class evaluate_from_xml():
             # Counting tp, dt, gt for each classes
             tp = {}
             tp_with_deg = {}
-            # tp_with_recog = {}
+            tp_with_recog = {}
             dt = {}
             gt = {}
             for gt_item in gt_dict[diagram]:
@@ -223,18 +223,20 @@ class evaluate_from_xml():
                                 tp[cls] = 0
                             if cls not in tp_with_deg:
                                 tp_with_deg[cls] = 0
-                            # if cls not in tp_with_recog:
-                            #     tp_with_recog[cls] = 0
+                            if cls not in tp_with_recog:
+                                tp_with_recog[cls] = 0
                             iou = self.__cal_iou(gt_item['bndbox'], dt_item['bndbox'])
                             if iou > self.__iou_thr:
                                 tp[cls] += 1
-                                # print(f"gt: {gt_item['degree']}, dt: {dt_item['degree']}")
                                 gt_deg = float(gt_item['degree'])
                                 dt_deg = float(dt_item['degree'])
                                 if cmp_degree and gt_deg == dt_deg:
                                     tp_with_deg[cls] += 1
-                                # if cmp_recog and gt_bbox['type'] gt_recog == dt_recog:
-                                #     tp_with_recog[cls] += 1
+                                if cmp_recog and gt_item['type'] == 'text':
+                                    gt_recog = float(gt_item['class'])
+                                    dt_recog = float(dt_item['class'])
+                                    if gt_recog == dt_recog:
+                                        tp_with_recog[cls] += 1
             for dt_item in dt_dict[diagram]:
                 cls = dt_item['class'] if dt_item['type'] != 'text' else 'text'
                 if cls not in symbol_dict:
@@ -304,6 +306,25 @@ class evaluate_from_xml():
                     degree[diagram]['total']['tp'] += cnt
                     if 'tp_with_deg' not in degree[diagram][cls]: 
                         degree[diagram][cls]['tp_with_deg'] = 0
+
+            # Mapping recognition
+            if cmp_recog:
+                for cls, cnt in tp_with_recog.items():
+                    if cls not in symbol_dict:
+                        continue
+                    if cls not in recognition[diagram]:
+                        degree[diagram][cls] = {}
+                    recognition[diagram][cls]['tp_with_recog'] = cnt
+                    recognition[diagram]['total']['tp_with_deg'] += cnt
+                for cls, cnt in tp.items():
+                    if cls not in symbol_dict:
+                        continue
+                    if cls not in recognition[diagram]:
+                        recognition[diagram][cls] = {}
+                    recognition[diagram][cls]['tp'] = cnt
+                    recognition[diagram]['total']['tp'] += cnt
+                    if 'tp_with_recog' not in recognition[diagram][cls]: 
+                        recognition[diagram][cls]['tp_with_deg'] = 0
                 
         return precision, recall, degree, recognition
 
@@ -335,6 +356,7 @@ class evaluate_from_xml():
         mean['dt'] = 0
         mean['gt'] = 0
         mean['tp_with_deg'] = 0
+        mean['tp_with_recog'] = 0
 
         Path(dump_path).mkdir(parents=True, exist_ok=True)
         result_file = open(f"{dump_path}\\result_{symbol_type}.txt", 'w')
@@ -362,7 +384,7 @@ class evaluate_from_xml():
             mean['gt'] += gt
 
             if cmp_degree:
-                score = "degree coreection ratio"
+                score = "degree correction ratio"
                 tp_with_deg = degree[diagram]['total']['tp_with_deg']
                 tp = degree[diagram]['total']['tp']
                 dg_ratio = tp_with_deg / tp if tp != 0 else 0
@@ -370,16 +392,36 @@ class evaluate_from_xml():
             
                 mean['tp_with_deg'] += tp_with_deg
 
+            if cmp_recog:
+                score = "recognition ratio"
+                tp_with_recog = recognition[diagram]['total']['tp_with_recog']
+                tp = recognition[diagram]['total']['tp']
+                rcg_ratio = tp_with_recog / tp if tp != 0 else 0
+                result_file.write(f"total {score}: {tp_with_recog} / {tp} = {rcg_ratio}\n")
+            
+                mean['tp_with_deg'] += tp_with_deg
+
             for cls, num in symbol_dict.items():
                 if cls in recall[diagram]:
                     tp = recall[diagram][cls]['tp']
                     gt = recall[diagram][cls]['gt']
+
+                    tp_with_deg = 0
+                    tp_with_recog  = 0
                     if cmp_degree and cls in degree[diagram]:
                         tp_with_deg = degree[diagram][cls]['tp_with_deg']
-                        tp = degree[diagram][cls]['tp']
-                        result_file.write(f"class {num} (['{cls}']): {tp} / {gt}, {score}: {tp_with_deg} / {tp}\n")
-                    else: 
-                        result_file.write(f"class {num} (['{cls}']): {tp} / {gt}\n")            
+                    if cmp_recog and cls in recognition[diagram]:
+                        tp_with_recog = degree[diagram][cls]['tp_with_recog']
+
+                    result = f"class {num} (['{cls}']): {tp} / {gt}"
+                    if cmp_degree and cls in degree[diagram]:
+                        result = result + f", 'degree correction ratio': {tp_with_deg} / {tp}"
+                    if cmp_recog and cls in recognition[diagram]:
+                        result = result + f", 'recognition ratio': {tp_with_recog} / {tp}"
+                    result = result + '\n'
+                    
+                    result_file.write(result)      
+
             result_file.write('\n')
 
         mean['precision'] = mean['tp'] / mean['dt'] if mean['dt'] != 0 else 0
