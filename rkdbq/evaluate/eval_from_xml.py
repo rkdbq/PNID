@@ -214,8 +214,13 @@ class evaluate_from_xml():
             tp_with_recog = {}
             dt = {}
             gt = {}
+
+            gt_matched = set()
+            dt_matched = set()
             for gt_item in gt_dict[diagram]:
                 for dt_item in dt_dict[diagram]:
+                    if tuple(gt_item['bndbox'].values()) in gt_matched or tuple(dt_item['bndbox'].values()) in dt_matched:
+                        continue
                     if gt_item['type'] == dt_item['type']:
                         if gt_item['type'] == 'text' or gt_item['class'] == dt_item['class']:
                             cls = gt_item['class'] if gt_item['type'] != 'text' else 'text'
@@ -239,6 +244,9 @@ class evaluate_from_xml():
                                     dt_recog = float(dt_item['class'])
                                     if gt_recog == dt_recog:
                                         tp_with_recog[cls] += 1
+                                gt_matched.add(tuple(gt_item['bndbox'].values()))
+                                dt_matched.add(tuple(dt_item['bndbox'].values()))
+                                
             for dt_item in dt_dict[diagram]:
                 cls = dt_item['class'] if dt_item['type'] != 'text' else 'text'
                 if cls not in symbol_dict:
