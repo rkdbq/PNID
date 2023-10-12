@@ -14,6 +14,8 @@ class evaluate_from_xml():
         self.__symbol_txt_path['total'] = symbol_txt_path
         self.__symbol_txt_path['large'] = large_symbol_txt_path
         self.__iou_thr = iou_thr
+        self.__TWO_POINTS_FORMAT = 22
+        self.__FOUR_POINTS_FORMAT = 44
 
     def __diff_dict(self, remain: dict, remove: dict):
         """ remain 딕셔너리 중 remove 딕셔너리와 중복되는 키를 가지는 쌍을 삭제
@@ -127,7 +129,7 @@ class evaluate_from_xml():
                 result[child.tag] = child.text
         return result
 
-    def __xmls2dict(self, xml_dir_path: str, mode: str):
+    def __xmls2dict(self, xml_dir_path: str, mode: int):
         """ xml 파일들을 딕셔너리로 파싱
         
         """
@@ -141,7 +143,7 @@ class evaluate_from_xml():
                         root_element = tree.getroot()
                         diagram = filename[0:22]
                         result[diagram] = self.__xml2dict(root_element)['symbol_object']
-                        if mode == 'dt':
+                        if mode == self.__TWO_POINTS_FORMAT:
                             four_bboxs = []
                             for bbox in result[diagram]:
                                 four_bboxs.append(self.__two2four(bbox))
@@ -340,8 +342,8 @@ class evaluate_from_xml():
 
         Path(dump_path).mkdir(parents=True, exist_ok=True)
         
-        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode='gt')
-        dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode='dt')
+        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode=self.__FOUR_POINTS_FORMAT)
+        dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode=self.__TWO_POINTS_FORMAT)
 
         symbol_dict = {}
         symbol_dict['total'] = self.__txt2dict(self.__symbol_txt_path['total'])
@@ -445,8 +447,8 @@ class evaluate_from_xml():
         """
         Path(write_path).mkdir(parents=True, exist_ok=True)
 
-        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode='gt')
-        dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode='dt')
+        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode=self.__FOUR_POINTS_FORMAT)
+        dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode=self.__TWO_POINTS_FORMAT)
 
         for diagram in tqdm(dt_dict.keys(), f"Visualizing '{cls}' Class"):
             gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
@@ -473,13 +475,13 @@ class evaluate_from_xml():
 
 # pipeline
 
-gt_imgs_path = 'D:\\Data\\PNID_RAW\\Drawing\\JPG_123'
-gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls_first_year_123'
-dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls_first_year_123'
+gt_imgs_path = 'D:\\Data\\raw\\PNID_RAW\\Drawing\\JPG_123'
+gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls'
+dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls_after_rev'
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
 large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
-dump_path = 'D:\\Experiments\\Detections\\from_xml\\first_year_123_50'
-visualize_path = 'D:\\Experiments\\Visualization\\from_xml\\first_year_123_50'
+dump_path = 'D:\\Experiments\\Evaluations\\from_xml\\1012'
+visualize_path = 'D:\\Experiments\\Visualizations\\from_xml\\1012'
 
 eval = evaluate_from_xml(
                 gt_xmls_path=gt_xmls_path,
