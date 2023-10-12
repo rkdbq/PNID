@@ -135,7 +135,7 @@ class evaluate_from_xml():
         """
         result = {}
         for root, dirs, files in os.walk(xml_dir_path):
-            for filename in tqdm(files, f"Parcing XMLs ({mode})"):
+            for filename in tqdm(files, f"Parcing XMLs"):
                 if filename.endswith('.xml'):
                     file_path = os.path.join(root, filename)
                     try:
