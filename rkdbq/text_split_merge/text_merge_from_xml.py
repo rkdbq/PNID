@@ -184,11 +184,6 @@ class text_merge():
         return coords
     
     def __get_merged_text(self, remain_str: str, remove_str: str):
-        if remain_str is None:
-            return remove_str
-        if remove_str is None:
-            return remain_str
-        
         remain_len = len(remain_str)
         remove_len = len(remove_str)
 
@@ -282,7 +277,7 @@ class text_merge():
             annset = set()
             for obj in ann['symbol_object']:
                 type = obj['type']
-                cls = obj['class'] if 'class' in obj else ''
+                cls = obj['class'] if obj['class'] is not None else ''
                 coords = [str(coord) for coord in obj['bndbox'].values()]
                 degree = obj['degree']
                 flip = obj['flip']
