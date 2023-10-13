@@ -140,8 +140,8 @@ def merge_xml(from_xmls_path: str, to_xmls_path: str, type_dict_path: str):
 
     for diagram, from_xml in from_xmls['symbol'].items():
         to_xmls[diagram] = {
-            #  'filename': f"{diagram}.jpg",
-            #  'size': from_xml['size'],
+             'filename': f"{diagram}.jpg",
+             'size': from_xml['size'],
              'symbol_objects': [],
         }
         for from_symbol in from_xml['object']:
@@ -151,14 +151,10 @@ def merge_xml(from_xmls_path: str, to_xmls_path: str, type_dict_path: str):
                 'type': types[cls] if cls in types else 'unspecified_symbol',
                 'class': cls,
                 'bndbox': {
-                    'x1': bndbox['xmin'],
-                    'y1': bndbox['ymin'],
-                    'x2': bndbox['xmax'],
-                    'y2': bndbox['ymin'],
-                    'x3': bndbox['xmax'],
-                    'y3': bndbox['ymax'],
-                    'x4': bndbox['xmin'],
-                    'y4': bndbox['ymax'],
+                    'xmin': bndbox['xmin'],
+                    'ymin': bndbox['ymin'],
+                    'xmax': bndbox['xmax'],
+                    'ymax': bndbox['ymax'],
                 },
                 'degree': '0.0',
                 'flip': 'n',
@@ -172,17 +168,13 @@ def merge_xml(from_xmls_path: str, to_xmls_path: str, type_dict_path: str):
                 'type': 'text',
                 'class': from_text['class'],
                 'bndbox': {
-                    'x1': bndbox['xmin'],
-                    'y1': bndbox['ymin'],
-                    'x2': bndbox['xmax'],
-                    'y2': bndbox['ymin'],
-                    'x3': bndbox['xmax'],
-                    'y3': bndbox['ymax'],
-                    'x4': bndbox['xmin'],
-                    'y4': bndbox['ymax'],
+                    'xmin': bndbox['xmin'],
+                    'ymin': bndbox['ymin'],
+                    'xmax': bndbox['xmax'],
+                    'ymax': bndbox['ymax'],
                 },
-                'degree': '0.0',
-                'flip': 'n',
+                'degree': from_text['degree'],
+                'flip': from_text['flip'],
               }
               to_xmls[diagram]['symbol_objects'].append(to_text)
 
