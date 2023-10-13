@@ -1,5 +1,6 @@
 import os, math, cv2
 import numpy as np
+from xml.dom import minidom
 import xml.etree.ElementTree as ET
 from shapely import Polygon
 from pathlib import Path
@@ -355,6 +356,9 @@ class text_merge():
             tree = ET.ElementTree(root)
             tree.write(to_xml_path)
 
+            xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent="    ")
+            return xmlstr
+
     def __indent(self, elem, level=0):  # Tools.Common.pnid_xml.py
         """ XML의 들여쓰기 포함한 출력을 위한 함수
 
@@ -419,14 +423,15 @@ visualize_path = 'D:\\Experiments\\Visualizations\\from_xml\\DT_xmls_include_tex
 merge = text_merge(annxmls_path)
 merge.text_merge_from_xmls(
     out_xmls_path=merged_annxmls_path,
-    # iof_thr=,
+    iof_thr=1,
     # y_diff_thr=,
-    # y_diff_iof_thr=,
+    y_diff_iof_thr=1,
 )
-merge.visualize(
-    gt_imgs_path=gt_imgs_path, 
-    befxmls_path=annxmls_path, 
-    aftxmls_path=merged_annxmls_path, 
-    out_imgs_path=visualize_path, 
-    type='text'
-)
+print(txt)
+# merge.visualize(
+#     gt_imgs_path=gt_imgs_path, 
+#     befxmls_path=annxmls_path, 
+#     aftxmls_path=merged_annxmls_path, 
+#     out_imgs_path=visualize_path, 
+#     type='text'
+# )
