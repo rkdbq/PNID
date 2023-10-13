@@ -215,11 +215,13 @@ class evaluate_from_xml():
             dt = {}
             gt = {}
 
-            gt_matched = set()
-            dt_matched = set()
+            gt_matched = [False]*gt_dict[diagram].__len__()
+            dt_matched = [False]*dt_dict[diagram].__len__()
             for gt_item in gt_dict[diagram]:
                 for dt_item in dt_dict[diagram]:
-                    if tuple(gt_item['bndbox'].values()) in gt_matched or tuple(dt_item['bndbox'].values()) in dt_matched:
+                    gt_idx = gt_dict[diagram].index(gt_item)
+                    dt_idx = dt_dict[diagram].index(dt_item)
+                    if gt_matched[gt_idx] or dt_matched[dt_idx]:
                         continue
                     if gt_item['type'] == dt_item['type']:
                         if gt_item['type'] == 'text' or gt_item['class'] == dt_item['class']:
@@ -244,8 +246,8 @@ class evaluate_from_xml():
                                     dt_recog = float(dt_item['class'])
                                     if gt_recog == dt_recog:
                                         tp_with_recog[cls] += 1
-                                gt_matched.add(tuple(gt_item['bndbox'].values()))
-                                dt_matched.add(tuple(dt_item['bndbox'].values()))
+                                gt_matched[gt_idx] = True
+                                dt_matched[dt_idx] = True
                                 
             for dt_item in dt_dict[diagram]:
                 cls = dt_item['class'] if dt_item['type'] != 'text' else 'text'
@@ -538,7 +540,7 @@ eval = evaluate_from_xml(
     dt_xmls_path=dt_xmls_path,
     symbol_txt_path=symbol_txt_path,
     large_symbol_txt_path=large_symbol_txt_path,
-    iou_thr=0.5
+    iou_thr=0.25
     )
 eval.dump(
     dump_path=dump_path, 
