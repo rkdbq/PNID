@@ -479,7 +479,7 @@ class evaluate_from_xml():
                     font_thickness = 1
                     cv2.putText(vis_img, dt_item['class'], tuple(dt_points[0]), font, font_scale, font_color, font_thickness)
             
-            vis_img_path = os.path.join(out_imgs_path, f"{diagram}_aft.jpg")
+            vis_img_path = os.path.join(out_imgs_path, f"{diagram}_dt.jpg")
             cv2.imwrite(vis_img_path, vis_img)
             
         for diagram in tqdm(dt_dict.keys(), f"Visualizing '{type}' Class"):
