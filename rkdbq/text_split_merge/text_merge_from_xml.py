@@ -438,7 +438,7 @@ class text_merge():
                 bef_type = bef_item['type']
                 if bef_type == type or type == 'total':
                     for num in range(4):
-                        cv2.line(vis_img, bef_points[(num + 0) % 4], bef_points[(num + 1) % 4], (255, 0, 0), 2)
+                        cv2.line(vis_img, bef_points[(num + 0) % 4], bef_points[(num + 1) % 4], (0, 255, 0), 2)
                     font = cv2.FONT_HERSHEY_SIMPLEX
                     font_scale = 0.5
                     font_color = (0, 0, 0)  # 텍스트 색상 (BGR 형식)
