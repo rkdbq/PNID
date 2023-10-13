@@ -491,7 +491,7 @@ class evaluate_from_xml():
                 gt_type = gt_item['type']
                 if gt_type == type or type == 'total':
                     for num in range(4):
-                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (255, 0, 0), 2)
+                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 2)
                     font = cv2.FONT_HERSHEY_SIMPLEX
                     font_scale = 0.5
                     font_color = (0, 0, 0)  # 텍스트 색상 (BGR 형식)
@@ -499,6 +499,28 @@ class evaluate_from_xml():
                     cv2.putText(vis_img, gt_item['class'], tuple(gt_points[0]), font, font_scale, font_color, font_thickness)
 
             vis_img_path = os.path.join(out_imgs_path, f"{diagram}_gt.jpg")
+            cv2.imwrite(vis_img_path, vis_img)
+
+        for diagram in tqdm(dt_dict.keys(), f"Visualizing '{type}' Class"):
+            gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
+            vis_img = cv2.imread(gt_img_path)
+            for dt_item in dt_dict[diagram]:
+                dt_bbox = dt_item['bndbox']
+                dt_points = self.__dict2points(dt_bbox)
+                dt_type = dt_item['type']
+                if dt_type == type or type == 'total':
+                    for num in range(4):
+                        cv2.line(vis_img, dt_points[(num + 0) % 4], dt_points[(num + 1) % 4], (0, 0, 255), 4)
+            
+            for gt_item in gt_dict[diagram]:
+                gt_bbox = gt_item['bndbox']
+                gt_points = self.__dict2points(gt_bbox)
+                gt_type = gt_item['type']
+                if gt_type == type or type == 'total':
+                    for num in range(4):
+                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 2)        
+            
+            vis_img_path = os.path.join(out_imgs_path, f"{diagram}_total.jpg")
             cv2.imwrite(vis_img_path, vis_img)
 
 # pipeline
