@@ -232,10 +232,13 @@ class text_merge():
             else:
                 result.append(remove_point)
 
-        remain_degree = remain_bbox[10]
+        remain_isLarge = remain_bbox[10]
+        result.append(remain_isLarge)
+
+        remain_degree = remain_bbox[11]
         result.append(remain_degree)
 
-        remain_flip = remain_bbox[11]
+        remain_flip = remain_bbox[12]
         result.append(remain_flip)
 
         return tuple(result)
@@ -280,9 +283,10 @@ class text_merge():
                 type = obj['type']
                 cls = obj['class'] if obj['class'] is not None else ''
                 coords = [str(coord) for coord in obj['bndbox'].values()]
+                isLarge = obj['isLarge']
                 degree = obj['degree']
                 flip = obj['flip']
-                bbox = (type,) + (cls,) + tuple(coords) + (degree,) + (flip,)
+                bbox = (type,) + (cls,) + tuple(coords) + (isLarge,) + (degree,) + (flip,)
                 annset.add(bbox)
 
             merged_annset = self.__cmp_iof(
@@ -309,8 +313,9 @@ class text_merge():
                         'x4': obj[8],
                         'y4': obj[9],
                     },
-                    'degree': obj[10],
-                    'flip': obj[11],
+                    'isLarge': obj[10],
+                    'degree': obj[11],
+                    'flip': obj[12],
                 }
                 symbol_obj = self.__four2two(symbol_obj)
                 for coord, value in symbol_obj['bndbox'].items():
