@@ -350,7 +350,7 @@ class evaluate_from_xml():
 
         Path(dump_path).mkdir(parents=True, exist_ok=True)
         
-        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode=self.__FOUR_POINTS_FORMAT)
+        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode=self.__TWO_POINTS_FORMAT)
         dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode=self.__TWO_POINTS_FORMAT)
 
         symbol_dict = {}
@@ -455,7 +455,7 @@ class evaluate_from_xml():
         """
         Path(write_path).mkdir(parents=True, exist_ok=True)
 
-        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode=self.__FOUR_POINTS_FORMAT)
+        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode=self.__TWO_POINTS_FORMAT)
         dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode=self.__TWO_POINTS_FORMAT)
 
         for diagram in tqdm(dt_dict.keys(), f"Visualizing '{cls}' Class"):
@@ -492,13 +492,15 @@ dump_path = 'D:\\Experiments\\Evaluations\\from_xml\\1012'
 visualize_path = 'D:\\Experiments\\Visualizations\\from_xml\\1012'
 
 eval = evaluate_from_xml(
-                gt_xmls_path=gt_xmls_path,
-                dt_xmls_path=dt_xmls_path,
-                symbol_txt_path=symbol_txt_path,
-                large_symbol_txt_path=large_symbol_txt_path,
-                iou_thr=0.5
-                )
-eval.dump(dump_path=dump_path, 
-          symbol_type='total',
-          cmp_degree=False,)
-eval.visualize(gt_imgs_path, visualize_path, cls='total')
+    gt_xmls_path=gt_xmls_path,
+    dt_xmls_path=dt_xmls_path,
+    symbol_txt_path=symbol_txt_path,
+    large_symbol_txt_path=large_symbol_txt_path,
+    iou_thr=0.5
+    )
+eval.dump(
+    dump_path=dump_path, 
+    symbol_type='total',
+    cmp_degree=False,
+    )
+# eval.visualize(gt_imgs_path, visualize_path, cls='total')
