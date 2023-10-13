@@ -357,6 +357,9 @@ class evaluate_from_xml():
         symbol_dict['total'] = self.__txt2dict(self.__symbol_txt_path['total'])
         symbol_dict['large'] = self.__txt2dict(self.__symbol_txt_path['large'])
         symbol_dict['small'] = self.__diff_dict(symbol_dict['total'], symbol_dict['large'])
+        symbol_dict['text'] = {
+            'text': 178
+        }
 
         symbol_dict = symbol_dict[symbol_type]
         precision, recall, degree, recognition = self.__evaluate(gt_dict, dt_dict, symbol_dict, cmp_degree, cmp_recog)
@@ -445,40 +448,57 @@ class evaluate_from_xml():
         result_file.close()
         return
     
-    def visualize(self, gt_imgs_path: str, write_path: str, cls: str = 'text'):
+    def visualize(self, gt_imgs_path: str, gt_xmls_path: str, dt_xmls_path: str, out_imgs_path: str, type: str = 'text'):
         """ 바운딩 박스들을 가시화
         
         Arguments:
-            gt_imgs_path: 원본 이미지의 경로
-            write_path: 가시화된 이미지를 저장할 경로
-        
+            gt_imgs_path: 원본 이미지 파일들의 경로
+            gt_xmls_path: GT xml 파일들이 저장된 경로
+            dt_xmls_path: DT xml 파일들이 저장된 경로
+            out_imgs_path: 출력 이미지 파일들을 저장할 경로
+            type: 가시화 할 심볼 타입 (특정 심볼 또는 total)
         """
-        Path(write_path).mkdir(parents=True, exist_ok=True)
+        Path(out_imgs_path).mkdir(parents=True, exist_ok=True)
 
-        gt_dict = self.__xmls2dict(self.__xmls_path['gt'], mode=self.__TWO_POINTS_FORMAT)
-        dt_dict = self.__xmls2dict(self.__xmls_path['dt'], mode=self.__TWO_POINTS_FORMAT)
+        gt_dict = self.__xmls2dict(gt_xmls_path, mode=self.__TWO_POINTS_FORMAT)
+        dt_dict = self.__xmls2dict(dt_xmls_path, mode=self.__TWO_POINTS_FORMAT)
 
-        for diagram in tqdm(dt_dict.keys(), f"Visualizing '{cls}' Class"):
+        for diagram in tqdm(dt_dict.keys(), f"Visualizing '{type}' Class"):
             gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
             vis_img = cv2.imread(gt_img_path)
-
             for dt_item in dt_dict[diagram]:
                 dt_bbox = dt_item['bndbox']
                 dt_points = self.__dict2points(dt_bbox)
-                dt_cls = dt_item['class']
-                if dt_cls == cls or cls == 'total':
+                dt_type = dt_item['type']
+                if dt_type == type or type == 'total':
                     for num in range(4):
                         cv2.line(vis_img, dt_points[(num + 0) % 4], dt_points[(num + 1) % 4], (0, 0, 255), 4)
-
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 0.5
+                    font_color = (0, 0, 0)  # 텍스트 색상 (BGR 형식)
+                    font_thickness = 1
+                    cv2.putText(vis_img, dt_item['class'], tuple(dt_points[0]), font, font_scale, font_color, font_thickness)
+            
+            vis_img_path = os.path.join(out_imgs_path, f"{diagram}_aft.jpg")
+            cv2.imwrite(vis_img_path, vis_img)
+            
+        for diagram in tqdm(dt_dict.keys(), f"Visualizing '{type}' Class"):
+            gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
+            vis_img = cv2.imread(gt_img_path)
             for gt_item in gt_dict[diagram]:
                 gt_bbox = gt_item['bndbox']
                 gt_points = self.__dict2points(gt_bbox)
-                gt_cls = gt_item['class']
-                if gt_cls == cls or cls == 'total':
+                gt_type = gt_item['type']
+                if gt_type == type or type == 'total':
                     for num in range(4):
-                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (0, 255, 0), 2)
+                        cv2.line(vis_img, gt_points[(num + 0) % 4], gt_points[(num + 1) % 4], (255, 0, 0), 2)
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 0.5
+                    font_color = (0, 0, 0)  # 텍스트 색상 (BGR 형식)
+                    font_thickness = 1
+                    cv2.putText(vis_img, gt_item['class'], tuple(gt_points[0]), font, font_scale, font_color, font_thickness)
 
-            vis_img_path = os.path.join(write_path, f"{diagram}.jpg")
+            vis_img_path = os.path.join(out_imgs_path, f"{diagram}_gt.jpg")
             cv2.imwrite(vis_img_path, vis_img)
 
 # pipeline
