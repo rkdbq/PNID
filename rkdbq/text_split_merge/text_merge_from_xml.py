@@ -114,9 +114,9 @@ class text_merge():
         pivot = (mid['x'], mid['y'])
         x, y = self.__rotate(point, degree, pivot)
         bbox_four['x1'] = str(x)
-        bbox_four['y1'] = str(y)   
+        bbox_four['y1'] = str(y)
 
-        point = (bbox_two['xmin'], bbox_two['ymax'])
+        point = (bbox_two['xmax'], bbox_two['ymin'])
         x, y = self.__rotate(point, degree, pivot)
         bbox_four['x2'] = str(x)
         bbox_four['y2'] = str(y)
@@ -126,7 +126,7 @@ class text_merge():
         bbox_four['x3'] = str(x)
         bbox_four['y3'] = str(y)
 
-        point = (bbox_two['xmax'], bbox_two['ymin'])
+        point = (bbox_two['xmin'], bbox_two['ymax'])
         x, y = self.__rotate(point, degree, pivot)
         bbox_four['x4'] = str(x)
         bbox_four['y4'] = str(y)
@@ -166,7 +166,7 @@ class text_merge():
                     try:
                         tree = ET.parse(file_path)
                         root_element = tree.getroot()
-                        diagram = filename[0:22]
+                        diagram = filename.split('.xml')[0]
                         result[diagram] = self.__xml2dict(root_element)
                         if mode == self.__TWO_POINTS_FORMAT:
                             four_bboxs = []
@@ -243,42 +243,53 @@ class text_merge():
 
         return tuple(result)
     
-    def __cmp_iof(self, ann: set, iof_thr: float, y_diff_thr: int, y_diff_iof_thr: float):
-        remain_ann = set.copy(ann)
+    def __cmp_iof(self, ann: list, iof_thr: float, y_diff_thr: int, y_diff_iof_thr: float):
+        remain_ann = set(ann)
+        merged_flag = [False]*ann.__len__()
+        merged_cnt = 0
         for remain_bbox in ann:
-            for remove_bbox in ann:
-                if remain_bbox != remove_bbox:
-                    remain_type = remain_bbox[0]
-                    remove_type = remove_bbox[0]
-                    if remain_type == 'text' and remove_type == 'text':
-                        remain_points = [float(point) for point in remain_bbox[2:10]]
-                        remove_points = [float(point) for point in remove_bbox[2:10]]
-                        remain_y = {}
-                        remove_y = {}
-                        remain_y['min'] = min(remain_points[1::2])
-                        remain_y['max'] = max(remain_points[1::2])
-                        remove_y['min'] = min(remove_points[1::2])
-                        remove_y['max'] = max(remove_points[1::2])
-                        ymin_diff = abs(float(remain_y['min']) - float(remove_y['min']))
-                        ymax_diff = abs(float(remain_y['max']) - float(remove_y['max']))
-                        iof = self.__cal_iof(remain_points, remove_points)
-                        horizontal_intersect = ymin_diff < y_diff_thr and ymax_diff < y_diff_thr and iof > y_diff_iof_thr
-                        if iof > iof_thr or horizontal_intersect:
-                            merged_bbox = self.__get_merged_bbox(remain_bbox, remove_bbox)
-                            remain_ann.add(merged_bbox)
-                            if remove_bbox in remain_ann:
-                                remain_ann.remove(remove_bbox)
-                            if remain_bbox in remain_ann:
-                                remain_ann.remove(remain_bbox)
-                        
-        return remain_ann
+                for remove_bbox in ann:
+                    if merged_flag[ann.index(remain_bbox)]:
+                        continue
+                    if merged_flag[ann.index(remove_bbox)]:
+                        continue
+                    if remain_bbox != remove_bbox:
+                        remain_type = remain_bbox[0]
+                        remove_type = remove_bbox[0]
+                        remain_degree = remain_bbox[11]
+                        remove_degree = remove_bbox[11]
+                        if remain_type == 'text' and remove_type == 'text' and remain_degree == remove_degree:
+                            remain_points = [float(point) for point in remain_bbox[2:10]]
+                            remove_points = [float(point) for point in remove_bbox[2:10]]
+                            remain_y = {}
+                            remove_y = {}
+                            remain_y['min'] = min(remain_points[1::2])
+                            remain_y['max'] = max(remain_points[1::2])
+                            remove_y['min'] = min(remove_points[1::2])
+                            remove_y['max'] = max(remove_points[1::2])
+                            ymin_diff = abs(float(remain_y['min']) - float(remove_y['min']))
+                            ymax_diff = abs(float(remain_y['max']) - float(remove_y['max']))
+                            iof = self.__cal_iof(remain_points, remove_points)
+                            horizontal_intersect = ymin_diff < y_diff_thr and ymax_diff < y_diff_thr and iof > y_diff_iof_thr
+                            if iof > iof_thr or horizontal_intersect:
+
+                                merged_bbox = self.__get_merged_bbox(remain_bbox, remove_bbox)
+                                if remove_bbox in remain_ann:
+                                    remain_ann.remove(remove_bbox)
+                                if remain_bbox in remain_ann:
+                                    remain_ann.remove(remain_bbox)
+                                remain_ann.add(merged_bbox)
+                                merged_flag[ann.index(remain_bbox)] = True
+                                merged_flag[ann.index(remove_bbox)] = True
+                                merged_cnt += 1
+        return remain_ann, merged_cnt
     
     def __merge(self, iof_thr: float, y_diff_thr: int, y_diff_iof_thr: float, xml_dir_path: str):
         result = {}
         anns = self.__xmls2dict(xml_dir_path, mode=self.__TWO_POINTS_FORMAT)
         for diagram, ann in tqdm(anns.items(), "Merging"):
             result[diagram] = {}
-            annset = set()
+            annset = []
             for obj in ann['symbol_object']:
                 type = obj['type']
                 cls = obj['class'] if obj['class'] is not None else ''
@@ -287,16 +298,18 @@ class text_merge():
                 degree = obj['degree']
                 flip = obj['flip']
                 bbox = (type,) + (cls,) + tuple(coords) + (isLarge,) + (degree,) + (flip,)
-                annset.add(bbox)
+                annset.append(bbox)
 
-            merged_annset = self.__cmp_iof(
-                ann=annset,
-                iof_thr=iof_thr,
-                y_diff_thr=y_diff_thr,
-                y_diff_iof_thr=y_diff_iof_thr,
-            ) 
-            # result[diagram]['filename'] = ann['filename']
-            # result[diagram]['size'] = ann['size']
+            merged_annset = annset
+            while True:
+                merged_annset, merged_cnt = self.__cmp_iof(
+                    ann=list(merged_annset),
+                    iof_thr=iof_thr,
+                    y_diff_thr=y_diff_thr,
+                    y_diff_iof_thr=y_diff_iof_thr,
+                )
+                if merged_cnt == 0:
+                    break
 
             result[diagram]['symbol_object'] = []
             for obj in merged_annset:
@@ -407,16 +420,32 @@ class text_merge():
                 if aft_type == type or type == 'total':
                     for num in range(4):
                         cv2.line(vis_img, aft_points[(num + 0) % 4], aft_points[(num + 1) % 4], (0, 0, 255), 4)
-
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 0.5
+                    font_color = (0, 0, 0)  # 텍스트 색상 (BGR 형식)
+                    font_thickness = 1
+                    cv2.putText(vis_img, aft_item['class'], tuple(aft_points[0]), font, font_scale, font_color, font_thickness)
+            
+            vis_img_path = os.path.join(out_imgs_path, f"{diagram}_aft.jpg")
+            cv2.imwrite(vis_img_path, vis_img)
+            
+        for diagram in tqdm(aft_dict.keys(), f"Visualizing '{type}' Class"):
+            gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
+            vis_img = cv2.imread(gt_img_path)
             for bef_item in bef_dict[diagram]['symbol_object']:
                 bef_bbox = bef_item['bndbox']
                 bef_points = self.__dict2points(bef_bbox)
                 bef_type = bef_item['type']
                 if bef_type == type or type == 'total':
                     for num in range(4):
-                        cv2.line(vis_img, bef_points[(num + 0) % 4], bef_points[(num + 1) % 4], (0, 255, 0), 2)
+                        cv2.line(vis_img, bef_points[(num + 0) % 4], bef_points[(num + 1) % 4], (255, 0, 0), 2)
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 0.5
+                    font_color = (0, 0, 0)  # 텍스트 색상 (BGR 형식)
+                    font_thickness = 1
+                    cv2.putText(vis_img, bef_item['class'], tuple(bef_points[0]), font, font_scale, font_color, font_thickness)
 
-            vis_img_path = os.path.join(out_imgs_path, f"{diagram}.jpg")
+            vis_img_path = os.path.join(out_imgs_path, f"{diagram}_bef.jpg")
             cv2.imwrite(vis_img_path, vis_img)
 
 # pipeline
