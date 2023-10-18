@@ -448,24 +448,24 @@ class text_merge():
             vis_img_path = os.path.join(out_imgs_path, f"{diagram}_bef.jpg")
             cv2.imwrite(vis_img_path, vis_img)
 
-# pipeline
-gt_imgs_path = 'D:\\Data\\raw\\PNID_DOTA_before_split\\test\\images_123'
-annxmls_path = 'D:\\Data\\xml2eval\DT_xmls_include_text_class'
-merged_annxmls_path = 'D:\\Experiments\\Text_Merge\\from_xml\\DT_xmls_include_text_class_4'
-visualize_path = 'D:\\Experiments\\Visualizations\\from_xml\\DT_xmls_include_text_class_2_None'
+gt_imgs_path = 'D:\\Data\\raw\\PNID_RAW_not_title\\Drawing'
+annxmls_path = 'D:\\Data\\xml2eval\DT_test_final'
 
 merge = text_merge(annxmls_path)
+
+merged_annxmls_path = 'D:\\Experiments\\Text_Merge\\from_xml\\DT_test_final_merged'
 merge.text_merge_from_xmls(
     out_xmls_path=merged_annxmls_path,
-    iof_thr=1,
+    # iof_thr=0.8,
     # y_diff_thr=,
-    y_diff_iof_thr=1,
+    # y_diff_iof_thr=0.8,
 )
-print(txt)
-# merge.visualize(
-#     gt_imgs_path=gt_imgs_path, 
-#     befxmls_path=annxmls_path, 
-#     aftxmls_path=merged_annxmls_path, 
-#     out_imgs_path=visualize_path, 
-#     type='text'
-# )
+
+visualize_path = 'D:\\Experiments\\Visualizations\\from_xml\\DT_xmls_test_after_merge'
+merge.visualize(
+    gt_imgs_path=gt_imgs_path, 
+    befxmls_path=annxmls_path, 
+    aftxmls_path=merged_annxmls_path, 
+    out_imgs_path=visualize_path, 
+    type='text'
+)
