@@ -434,7 +434,6 @@ class evaluate_from_xml():
                     if cmp_recog and cls in recognition[diagram]:
                         result = result + f", 'recognition ratio': {tp_with_recog} / {tp}"
                     result = result + '\n'
-                    
                     result_file.write(result)      
 
             result_file.write('\n')
@@ -526,25 +525,33 @@ class evaluate_from_xml():
             cv2.imwrite(vis_img_path, vis_img)
 
 # pipeline
+dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls_from_test'
 
-gt_imgs_path = 'D:\\Data\\raw\\PNID_RAW\\Drawing\\JPG_123'
-gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls'
-dt_xmls_path = 'D:\\Data\\xml2eval\\DT_xmls_after_rev'
+gt_imgs_path = 'D:\\Data\\raw\\PNID_RAW_not_title\\Drawing'
+gt_xmls_path = 'D:\\Data\\xml2eval\\GT_xmls_first_year_last'
 symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
 large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
-dump_path = 'D:\\Experiments\\Evaluations\\from_xml\\1012'
-visualize_path = 'D:\\Experiments\\Visualizations\\from_xml\\1012'
 
 eval = evaluate_from_xml(
     gt_xmls_path=gt_xmls_path,
     dt_xmls_path=dt_xmls_path,
     symbol_txt_path=symbol_txt_path,
     large_symbol_txt_path=large_symbol_txt_path,
-    iou_thr=0.25
+    iou_thr=0.5
     )
+
+dump_path = 'D:\\Experiments\\Evaluations\\from_xml\\DT_xmls_from_test\\50'
 eval.dump(
     dump_path=dump_path, 
     symbol_type='total',
     cmp_degree=False,
     )
-# eval.visualize(gt_imgs_path, visualize_path, cls='total')
+
+visualize_path = 'D:\\Experiments\\Visualizations\\from_xml\\DT_xmls_from_test\\50'
+eval.visualize(
+    gt_imgs_path=gt_imgs_path, 
+    gt_xmls_path=gt_xmls_path,
+    dt_xmls_path=dt_xmls_path,
+    out_imgs_path=visualize_path,
+    type='total'
+    )
