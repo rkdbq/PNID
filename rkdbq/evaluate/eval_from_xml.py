@@ -374,7 +374,7 @@ class evaluate_from_xml():
         mean['tp_with_recog'] = 0
 
         Path(dump_path).mkdir(parents=True, exist_ok=True)
-        result_file = open(f"{dump_path}\\result_{symbol_type}.txt", 'w')
+        result_file = open(os.path.join(dump_path, f"result_{symbol_type}.txt"), 'w')
         result_file.write(f"Symbol Type: {symbol_type}\n")
         result_file.write(f"IoU Threshold: {self.__iou_thr}\n")
         
