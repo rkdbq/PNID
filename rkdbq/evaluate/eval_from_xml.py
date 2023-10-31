@@ -14,7 +14,7 @@ class evaluate_from_xml():
         symbol_txt_path: 심볼 클래스 딕셔너리 텍스트 파일 경로 (e.g. 1|flange)
         large_symbol_txt_path: 큰 심볼 클래스 딕셔너리 텍스트 파일 경로 (e.g. 1|vertical_drum)
         iou_thr: TP 기준 threshold
-        symbol_type: 측정할 심볼 클래스 ('total', 'small', 'large' 또는 특정 심볼 클래스)
+        symbol_type: 측정할 심볼 클래스 ('total', 'small' 또는 'large')
     """
     def __init__(self, gt_xmls_path: str, dt_xmls_path: str, symbol_txt_path: str, large_symbol_txt_path: str, iou_thr: float = 0.8, symbol_type: str = 'total'):
         self.__xmls_path = {}
@@ -36,9 +36,6 @@ class evaluate_from_xml():
         self.symbol_dict['total'] = self.__txt2dict(self.__symbol_txt_path['total'])
         self.symbol_dict['large'] = self.__txt2dict(self.__symbol_txt_path['large'])
         self.symbol_dict['small'] = self.__diff_dict(self.symbol_dict['total'], self.symbol_dict['large'])
-        self.symbol_dict['text'] = {
-            'text': 178
-        }
 
         self.symbol_dict = self.symbol_dict[self.symbol_type]
 
@@ -333,16 +330,16 @@ class evaluate_from_xml():
             dt = precision[diagram]['total']['dt']
             pr = tp / dt if dt != 0 else 0
             result_file.write(f"total {score}: {tp} / {dt} = {pr}\n")
-            print(f'precision: {pr}')
+            print(f'Precision: {pr}')
 
             score = "recall"
             tp = recall[diagram]['total']['tp']
             gt = recall[diagram]['total']['gt']
             rc = tp / gt if gt != 0 else 0
             result_file.write(f"total {score}: {tp} / {gt} = {rc}\n")
-            print(f'recall: {rc}')
+            print(f'Recall: {rc}')
 
-            print(f'(p+r)/2: {(pr+rc)/2}\n')
+            print(f'(P+R)/2: {(pr+rc)/2}\n')
 
             mean['tp'] += tp
             mean['dt'] += dt
