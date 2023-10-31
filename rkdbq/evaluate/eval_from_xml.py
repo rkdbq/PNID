@@ -445,8 +445,8 @@ if __name__=='__main__':
         print("Usage: python eval_from_xml.py {GT xml 폴더 경로} {DT xml 폴더 경로} {출력 파일 경로}")
         exit()
 
-    symbol_txt_path = 'D:\\Data\\SymbolClass_Class.txt'
-    large_symbol_txt_path = 'D:\\Data\\SymbolClass_Class_big.txt'
+    symbol_txt_path = 'D:\Data\SymbolClass_Class.txt'
+    large_symbol_txt_path = 'D:\Data\SymbolClass_Class_big.txt'
 
     dt_xmls_path = sys.argv[1]
     gt_xmls_path = sys.argv[2]
