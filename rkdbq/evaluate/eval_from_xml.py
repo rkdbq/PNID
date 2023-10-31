@@ -548,7 +548,6 @@ eval.dump(
     )
 
 visualize_path = 'D:\\Experiments\\Visualizations\\from_xml\\DT_xmls_from_test\\50'
-eval.visualize(
     gt_imgs_path=gt_imgs_path, 
     gt_xmls_path=gt_xmls_path,
     dt_xmls_path=dt_xmls_path,
