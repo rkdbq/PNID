@@ -6,6 +6,15 @@ from pathlib import Path
 from tqdm import tqdm
 
 class evaluate_from_xml():
+    """ Precision 및 Recall을 측정한다.
+
+    Arguments:
+        gt_xmls_path: 정답 xml 폴더 경로
+        dt_xmls_path: 검출 xml 폴더 경로
+        symbol_txt_path: 심볼 클래스 딕셔너리 텍스트 파일 경로 (e.g. 1|flange)
+        large_symbol_txt_path: 큰 심볼 클래스 딕셔너리 텍스트 파일 경로 (e.g. 1|vertical_drum)
+        iou_thr: TP 기준 threshold
+    """
     def __init__(self, gt_xmls_path: str, dt_xmls_path: str, symbol_txt_path: str, large_symbol_txt_path: str, iou_thr: float = 0.8):
         self.__xmls_path = {}
         self.__xmls_path['gt'] = gt_xmls_path
