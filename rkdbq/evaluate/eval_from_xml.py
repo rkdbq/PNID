@@ -339,7 +339,7 @@ class evaluate_from_xml():
             result_file.write(f"total {score}: {tp} / {gt} = {rc}\n")
             print(f'Recall: {rc}')
 
-            print(f'(P+R)/2: {(pr+rc)/2}\n')
+            print(f'(p+r)/2: {(pr+rc)/2}\n')
 
             mean['tp'] += tp
             mean['dt'] += dt
