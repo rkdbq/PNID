@@ -294,9 +294,9 @@ class text_merge():
                 type = obj['type']
                 cls = obj['class'] if obj['class'] is not None else ''
                 coords = [str(coord) for coord in obj['bndbox'].values()]
-                isLarge = obj['isLarge']
-                degree = obj['degree']
-                flip = obj['flip']
+                isLarge = obj['isLarge'] if 'isLarge' in obj else 'n'
+                degree = obj['degree'] if 'degree' in obj else '0'
+                flip = obj['flip'] if 'flip' in obj else 'n'
                 bbox = (type,) + (cls,) + tuple(coords) + (isLarge,) + (degree,) + (flip,)
                 annset.append(bbox)
 
@@ -421,15 +421,15 @@ class text_merge():
                     for num in range(4):
                         cv2.line(vis_img, aft_points[(num + 0) % 4], aft_points[(num + 1) % 4], (0, 0, 255), 4)
                     font = cv2.FONT_HERSHEY_SIMPLEX
-                    font_scale = 0.5
-                    font_color = (0, 0, 0)  # 텍스트 색상 (BGR 형식)
-                    font_thickness = 1
+                    font_scale = 1.0
+                    font_color = (50, 50, 50)  # 텍스트 색상 (BGR 형식)
+                    font_thickness = 2
                     cv2.putText(vis_img, aft_item['class'], tuple(aft_points[0]), font, font_scale, font_color, font_thickness)
             
             vis_img_path = os.path.join(out_imgs_path, f"{diagram}_aft.jpg")
             cv2.imwrite(vis_img_path, vis_img)
             
-        for diagram in tqdm(aft_dict.keys(), f"Visualizing '{type}' Class"):
+        for diagram in tqdm(bef_dict.keys(), f"Visualizing '{type}' Class"):
             gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
             vis_img = cv2.imread(gt_img_path)
             for bef_item in bef_dict[diagram]['symbol_object']:
@@ -440,16 +440,48 @@ class text_merge():
                     for num in range(4):
                         cv2.line(vis_img, bef_points[(num + 0) % 4], bef_points[(num + 1) % 4], (0, 255, 0), 2)
                     font = cv2.FONT_HERSHEY_SIMPLEX
-                    font_scale = 0.5
-                    font_color = (0, 0, 0)  # 텍스트 색상 (BGR 형식)
-                    font_thickness = 1
+                    font_scale = 1.0
+                    font_color = (50, 50, 50)  # 텍스트 색상 (BGR 형식)
+                    font_thickness = 2
                     cv2.putText(vis_img, bef_item['class'], tuple(bef_points[0]), font, font_scale, font_color, font_thickness)
 
             vis_img_path = os.path.join(out_imgs_path, f"{diagram}_bef.jpg")
             cv2.imwrite(vis_img_path, vis_img)
 
-gt_imgs_path = 'D:\\Data\\raw\\PNID_RAW_not_title\\Drawing'
-annxmls_path = 'D:\\Data\\xml2eval\DT_test_final'
+        for diagram in tqdm(aft_dict.keys(), f"Visualizing '{type}' Class"):
+            gt_img_path = os.path.join(gt_imgs_path, f"{diagram}.jpg")
+            vis_img = cv2.imread(gt_img_path)
+            for aft_item in aft_dict[diagram]['symbol_object']:
+                aft_bbox = aft_item['bndbox']
+                aft_points = self.__dict2points(aft_bbox)
+                aft_type = aft_item['type']
+                if aft_type == type or type == 'total':
+                    for num in range(4):
+                        cv2.line(vis_img, aft_points[(num + 0) % 4], aft_points[(num + 1) % 4], (0, 0, 255), 4)
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 1.0
+                    font_color = (50, 50, 50)  # 텍스트 색상 (BGR 형식)
+                    font_thickness = 2
+                    cv2.putText(vis_img, aft_item['class'], tuple(aft_points[0]), font, font_scale, font_color, font_thickness)
+
+            for bef_item in bef_dict[diagram]['symbol_object']:
+                bef_bbox = bef_item['bndbox']
+                bef_points = self.__dict2points(bef_bbox)
+                bef_type = bef_item['type']
+                if bef_type == type or type == 'total':
+                    for num in range(4):
+                        cv2.line(vis_img, bef_points[(num + 0) % 4], bef_points[(num + 1) % 4], (0, 255, 0), 2)
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 1.0
+                    font_color = (50, 50, 50)  # 텍스트 색상 (BGR 형식)
+                    font_thickness = 2
+                    cv2.putText(vis_img, bef_item['class'], tuple(bef_points[0]), font, font_scale, font_color, font_thickness)
+            
+            vis_img_path = os.path.join(out_imgs_path, f"{diagram}_total.jpg")
+            cv2.imwrite(vis_img_path, vis_img)
+
+gt_imgs_path = 'D:\\Data\\raw\\PNID_DOTA_before_split\\test\\images'
+annxmls_path = 'D:\\Data\\xml2eval\\DT_test_second_year_before_text_merge'
 
 merge = text_merge(annxmls_path)
 
