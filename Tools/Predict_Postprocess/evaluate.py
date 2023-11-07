@@ -242,7 +242,7 @@ class evaluate():
 
         with open(outpath, 'w') as f:
             mean_recog_ratio = 0
-            total_gt_text_num = 0
+            total_tp_text_num = 0
 
             for filename, gt_values in gt_result.items():
                 f.write(f"test drawing : {filename}----------------------------------\n")
@@ -274,10 +274,10 @@ class evaluate():
                         f.write(f"{cls}| Detected: {dt_value['bbox']}, '{dt_value['text']}', GT: {gt_value['bbox']}, '{gt_value['text']}'\n")
 
                 mean_recog_ratio += recog_values['recognized_num']
-                total_gt_text_num += recog_values['all_gt_text_num']
+                total_tp_text_num += recog_values['all_tp_text_num']
                 f.write("\n")
 
-            mean_recog_ratio /= total_gt_text_num
+            mean_recog_ratio /= total_tp_text_num
             f.write(f"(mean recognition ratio) = ({mean_recog_ratio})")
 
     def dump_pr_and_ap_result(self, pr_result, ap_result_str, recognition_result, symbol_dict, ap_result_only_sym_str=None, score_type = 'gt'):
