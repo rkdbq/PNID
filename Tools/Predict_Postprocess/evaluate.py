@@ -279,7 +279,10 @@ class evaluate():
                 total_tp_text_num += recog_values['all_tp_text_num']
                 f.write("\n")
 
-            mean_recog_ratio = mean_recog_ratio / total_gt_text_num if score_type == 'gt' else mean_recog_ratio / total_tp_text_num
+            if score_type == 'gt': 
+                mean_recog_ratio = mean_recog_ratio / total_gt_text_num if total_gt_text_num != 0 else 0
+            else:
+                mean_recog_ratio = mean_recog_ratio / total_tp_text_num if total_tp_text_num != 0 else 0
             f.write(f"(mean recognition ratio) = ({mean_recog_ratio})")
 
     def dump_pr_and_ap_result(self, pr_result, ap_result_str, recognition_result, symbol_dict, ap_result_only_sym_str=None, score_type = 'gt'):
@@ -383,8 +386,8 @@ class evaluate():
 
             mean_precision /= len(pr_result.keys())
             mean_recall /= len(pr_result.keys())
-            if score_type == 'gt': mean_recog_ratio /= total_gt_text_num
-            else: mean_recog_ratio /= total_tp_text_num
+            if score_type == 'gt': mean_recog_ratio = mean_recog_ratio / total_gt_text_num if total_gt_text_num != 0 else 0
+            else: mean_recog_ratio = mean_recog_ratio / total_tp_text_num if total_tp_text_num != 0 else 0
 
             ap_strs = ap_result_str.splitlines()[0].split(" ")
             ap = float(ap_strs[len(ap_strs)-1])
